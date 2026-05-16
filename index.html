@@ -202,7 +202,7 @@
             upgrades: {}, milestones: [], dust: 0, lastDustCollection: 0, dustCollections: 0, bestCosmicEnergy: 1,
             bigBangClicks: 0, bigBangLastClick: 0, shown: {}
         };
-        const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
+        const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', m[...]
         const cosmicRaw = [
             ['awakening', 'Awakening', '💫', 0, 'Begin energy generation', null, {startGeneration:true}],
             ['stellarFusion', 'Stellar Fusion', '⭐', 10, 'Double energy generation', 2],
@@ -210,23 +210,23 @@
             ['temporalAcceleration', 'Temporal Acceleration', '⏰', 75, 'Energy boost scales with age', s => s.universeAge/80+1],
             ['supernovaChain', 'Supernova Chain', '💥', 300, '8x energy boost', 8],
             ['cosmicResonance', 'Cosmic Resonance', '🎵', 2500, '3.5x energy from cosmic frequencies', 3.5],
-            ['timeDistortionField', 'Time Distortion Field', '🕳️', 12500, 'Temporal boost', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/75,0.84)/1.2+1 : Math.pow(s.universeAge/50,0.95)+1],
+            ['timeDistortionField', 'Time Distortion Field', '🕳️', 12500, 'Temporal boost', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/75,0.84)/1.2+1 : Math.pow(s.universeAge/50,0.95[...]
             ['nebulaHarvesting', 'Nebula Harvesting', '☁️', 50000, '3x energy from cosmic nebulae', 3],
             ['pulsarSync', 'Pulsar Synchronization', '🌟', 150000, '3.5x energy from pulsar emissions', 3.5],
             ['quasarChanneling', 'Quasar Channeling', '☀️', 6000000, '2.5x energy boost from quasar power', 2.5],
             ['cosmicMultiplier', 'Cosmic Energy Multiplier', '✖️', 2e7, 'x5 cosmic energy before 250M, then x3', s => s.cosmicEnergy<2.5e8?5:3],
             ['cosmicEnergyBoost', 'Cosmic Energy Boost', '⚡', 1e8, 'x2.5 cosmic energy', 2.5],
             ['energyBoostsDarkMatter', 'Energy Boosts Dark Matter', '🌀', 3e8, 'Cosmic energy boosts dark matter', s => Math.pow(s.cosmicEnergy,0.08)/1.3+1, {showBoost:true, boostsDM:true}],
-            ['timeBoostsDarkMatter', 'Time Boosts Dark Matter', '⏳', 6e8, 'Time boosts dark matter', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/500,0.8)+1 : Math.pow(s.universeAge/450,0.8)+1, {showBoost:true, boostsDM:true}],
-            ['energyBooststself', 'Energy Boosts Itself', '♾️', 3.2e9, 'Cosmic energy boosts itself', s => Math.pow(Math.pow(s.cosmicEnergy, s.upgrades.energyBoostBase?0.06:0.04),1.05)+1, {showBoost:true}],
+            ['timeBoostsDarkMatter', 'Time Boosts Dark Matter', '⏳', 6e8, 'Time boosts dark matter', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/500,0.8)+1 : Math.pow(s.universeAge/450,0[...]
+            ['energyBooststself', 'Energy Boosts Itself', '♾️', 3.2e9, 'Cosmic energy boosts itself', s => Math.pow(Math.pow(s.cosmicEnergy, s.upgrades.energyBoostBase?0.06:0.04),1.05)+1, {sh[...]
             ['darkMatterBoost', 'Dark Matter Boost', '🌑⚡', 8e9, 'x2 dark matter', 2, {boostsDM:true}],
             ['unlockQuantumForever', 'Unlock Quantum Leap Forever', '🔮', 1e10, 'Permanently unlock quantum leap', null],
             ['cosmicEnergyTriple', 'Cosmic Energy Triple', '⚡³', 15e12, 'x3 cosmic energy boost', 3],
             ['galacticEvents', 'Galactic Events', '🌠', 1e14, '15% chance/sec for x30 energy', null],
-            ['temporalSupercharge', 'Temporal Supercharge', '⚡⏰', 1e15, 'Time gain boosted', s => Math.pow(s.cosmicEnergy*s.darkMatter*Math.max(s.quantumLeaps,1),0.03)/1.11+1, {showBoost:true}],
-            ['infinityEngine3', 'Infinity Engine.3', '♾️³', 3e16, 'Infinity Engine boost also boosts quantum', s => s.upgrades.infinityEngine ? Math.pow(Math.pow(s.darkMatter,0.04)+1,0.2)*2+1 : 1, {showBoost:true, boostsQL:true}],
-            ['awesomeBoost', 'AWESOME BOOST', '🔥', 5e17, 'Cosmic energy boosts itself again', s => (Math.log10(Math.max(s.cosmicEnergy,1))+1)*(s.upgrades.improvementAgain?Math.log10(Math.max(s.cosmicEnergy,1))/1.5+1:1)+1, {showBoost:true}],
-            ['unoriginalAwesomeBoost', 'Unoriginal Awesome Boost', '🔥💭', 8e19, 'Cosmic energy boost unoriginally', s => {let b=Math.log(Math.max(s.cosmicEnergy,1))/Math.log(100)/5+1; return s.upgrades.boostItElse?Math.pow(b,1.4):b;}, {showBoost:true}],
+            ['temporalSupercharge', 'Temporal Supercharge', '⚡⏰', 1e15, 'Time gain boosted', s => Math.pow(s.cosmicEnergy*s.darkMatter*Math.max(s.quantumLeaps,1),0.03)/1.11+1, {showBoost:true[...]
+            ['infinityEngine3', 'Infinity Engine.3', '♾️³', 3e16, 'Infinity Engine boost also boosts quantum', s => s.upgrades.infinityEngine ? Math.pow(Math.pow(s.darkMatter,0.04)+1,0.2)*2+[...]
+            ['awesomeBoost', 'AWESOME BOOST', '🔥', 5e17, 'Cosmic energy boosts itself again', s => (Math.log10(Math.max(s.cosmicEnergy,1))+1)*(s.upgrades.improvementAgain?Math.log10(Math.max(s[...]
+            ['unoriginalAwesomeBoost', 'Unoriginal Awesome Boost', '🔥💭', 8e19, 'Cosmic energy boost unoriginally', s => {let b=Math.log(Math.max(s.cosmicEnergy,1))/Math.log(100)/5+1; return[...]
             ['quantumEnergy', 'Quantum Energy', '🔮⚡', 5e20, 'x1.5 quantum leap gains', 1.5, {boostsQL:true}],
             ['priceLeap', 'Price Leap', '💰🚀', 3e23, 'x1.4 energy, DM & quantum', 1.4, {boostsDM:true, boostsQL:true}],
             ['deserved', 'Deserved', '👑', 1e24, 'Energy multiplier ^1.035', null, {powerBoost:1.035}],
@@ -258,7 +258,7 @@
             ['hyperspeedEvolution', 'Hyperspeed Evolution', '🚀', 3000, '2x energy + 2x age', 2, {boostsTime:true}],
             ['infinityEngine', 'Infinity Engine', '♾️', 8000, 'DM boosts itself', s => Math.pow(s.darkMatter,0.04)+1, {boostsDM:true, showBoost:true}],
             ['darkMatterSurge', 'Dark Matter Surge', '🌊', 40000, '2x energy final boost', 2],
-            ['researchSynergy2', 'Research Synergy.2', '🔬⚡', 1e5, 'Research Synergy^0.5 boosts energy', s => s.upgrades.researchSynergy ? Math.pow(Math.pow(1.08,Object.values(s.upgrades).filter(v=>v>0).length),0.5)+1 : 1, {showBoost:true}],
+            ['researchSynergy2', 'Research Synergy.2', '🔬⚡', 1e5, 'Research Synergy^0.5 boosts energy', s => s.upgrades.researchSynergy ? Math.pow(Math.pow(1.08,Object.values(s.upgrades).fil[...]
             ['magnitude2', 'Magnitude.2', '📐', 2e5, 'x1.05 per upgrade owned', s => Math.pow(1.05, Object.values(s.upgrades).reduce((a,b)=>a+b,0)), {showBoost:true}],
             ['synergisedEnergy', 'Synergised Energy', '🔗', 5e5, 'DM boosts energy', s => Math.pow(s.darkMatter,0.08)*1.2+1, {showBoost:true}],
             ['improvisation', 'Improvisation', '🎭', 5e6, 'x5 cosmic energy', 5],
@@ -584,7 +584,7 @@
                 return `<div class="upgrade-card ${canAfford?'affordable':''} ${isMaxed?'maxed':''}" data-id="${u.id}">
                     <span class="upgrade-icon">${u.icon}</span>
                     <div class="upgrade-title">${u.name}${lvl>0?'✓':''}</div>
-                    <div class="upgrade-cost">${isMaxed?'OWNED':u.cost===0?'FREE':`${formatNumber(u.cost)} ${u.costType.replace('cosmicEnergy','Energy').replace('darkMatter','DM').replace('quantumLeaps','QL').replace('dust','Dust')}`}</div>
+                    <div class="upgrade-cost">${isMaxed?'OWNED':u.cost===0?'FREE':`${formatNumber(u.cost)} ${u.costType.replace('cosmicEnergy','Energy').replace('darkMatter','DM').replace('quantu[...]
                     <div class="upgrade-description">${u.effect}${boostText}</div>
                 </div>`;
             }).join('');
@@ -670,6 +670,15 @@
                 bgMusic.load();
             }
         }
+        function checkMusicState() {
+            const bgMusic = document.getElementById('bgMusic');
+            // If Awakening is purchased and music is not playing, try to play it
+            if (gameState.upgrades.awakening && bgMusic.paused) {
+                bgMusic.play().catch(() => {
+                    // Silently fail if autoplay is blocked
+                });
+            }
+        }
         function init() {
             const starsContainer = document.getElementById('stars');
             for (let i = 0; i < 100; i++) {
@@ -714,6 +723,7 @@
             setInterval(gameLoop, 100);
             setInterval(renderAllUpgrades, 5000);
             setInterval(saveGame, 10000);
+            setInterval(checkMusicState, 5000);
         }
         window.onload = init;
     </script>
