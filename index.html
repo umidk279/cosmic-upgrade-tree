@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic Evolution</title>
+    <title>Cosmic Upgrade Tree</title>
     <style>
         :root {
             --glow-primary: #64ffda;
@@ -12,9 +12,7 @@
             --bg-dark: #0a0a2e;
             --bg-darker: #000000;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Courier New', monospace;
             background: radial-gradient(circle at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
@@ -22,13 +20,10 @@
             overflow-x: hidden;
             min-height: 100vh;
         }
-
         .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
         .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s infinite; }
         @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
-
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
-
         .title {
             text-align: center;
             font-size: 3rem;
@@ -38,7 +33,6 @@
             margin-bottom: 10px;
             letter-spacing: 3px;
         }
-
         .subtitle {
             text-align: center;
             font-size: 1.2rem;
@@ -46,9 +40,7 @@
             margin-bottom: 40px;
             opacity: 0.8;
         }
-
         .main-stats { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
-
         .stat-card {
             flex: 1;
             min-width: 250px;
@@ -60,7 +52,6 @@
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-
         .stat-label {
             font-size: 1rem;
             color: var(--glow-secondary);
@@ -68,16 +59,13 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-
         .stat-value {
             font-size: 2rem;
             font-weight: bold;
             color: var(--glow-primary);
             text-shadow: 0 0 10px var(--glow-primary);
         }
-
         .buttons-row { display: flex; gap: 20px; margin-bottom: 40px; justify-content: center; flex-wrap: wrap; }
-
         .main-button {
             background: linear-gradient(135deg, var(--glow-primary) 0%, var(--glow-secondary) 100%);
             color: var(--bg-dark);
@@ -92,12 +80,9 @@
             letter-spacing: 1px;
             box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
         }
-
         .main-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(100, 255, 218, 0.4); }
         .main-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
-
         .tab {
             background: rgba(100, 255, 218, 0.1);
             border: 1px solid var(--glow-primary);
@@ -108,23 +93,19 @@
             transition: all 0.3s ease;
             font-weight: bold;
         }
-
         .tab.active {
             background: linear-gradient(135deg, var(--glow-primary) 0%, var(--glow-secondary) 100%);
             color: var(--bg-dark);
             box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
         }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
         .upgrades-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
-
         .upgrade-card {
             background: linear-gradient(135deg, rgba(100, 255, 218, 0.05) 0%, rgba(79, 211, 167, 0.05) 100%);
             border: 1px solid var(--glow-primary);
@@ -134,16 +115,13 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
         }
-
         .upgrade-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(100, 255, 218, 0.2); border-color: var(--glow-secondary); }
         .upgrade-card.affordable { border-color: var(--glow-secondary); background: linear-gradient(135deg, rgba(79, 211, 167, 0.1) 0%, rgba(100, 255, 218, 0.1) 100%); }
         .upgrade-card.maxed { opacity: 0.6; cursor: not-allowed; border-color: #666; }
-
         .upgrade-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
         .upgrade-title { font-size: 1.2rem; font-weight: bold; color: var(--glow-primary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .upgrade-cost { color: var(--glow-accent); font-weight: bold; margin-bottom: 10px; font-size: 1rem; }
         .upgrade-description { color: #b0bec5; font-size: 0.9rem; line-height: 1.4; }
-
         .notification {
             position: fixed;
             top: 20px;
@@ -158,9 +136,7 @@
             transition: transform 0.3s ease;
             z-index: 1000;
         }
-
         .notification.show { transform: translateX(0); }
-
         .milestone {
             background: linear-gradient(135deg, rgba(255, 107, 157, 0.1) 0%, rgba(100, 255, 218, 0.1) 100%);
             border: 1px solid var(--glow-accent);
@@ -168,11 +144,9 @@
             padding: 15px;
             margin-bottom: 15px;
         }
-
         .milestone.completed { border-color: var(--glow-secondary); background: linear-gradient(135deg, rgba(79, 211, 167, 0.1) 0%, rgba(100, 255, 218, 0.1) 100%); }
         .milestone-title { color: var(--glow-accent); font-weight: bold; margin-bottom: 5px; }
         .milestone.completed .milestone-title { color: var(--glow-secondary); }
-
         @media (max-width: 768px) {
             .title { font-size: 2rem; }
             .main-stats { flex-direction: column; }
@@ -182,31 +156,28 @@
 </head>
 <body>
     <div class="stars" id="stars"></div>
-    
     <div class="container">
-        <h1 class="title">COSMIC EVOLUTION</h1>
+        <h1 class="title">COSMIC UPGRADE TREE</h1>
         <p class="subtitle">• Idle Universe Simulator •</p>
-
         <div class="main-stats">
             <div class="stat-card"><div class="stat-label">Cosmic Energy</div><div class="stat-value" id="cosmicEnergy">1.00</div></div>
-            <div class="stat-card"><div class="stat-label">Energy Generation</div><div class="stat-value" id="energyGeneration">1.00/sec</div></div>
+            <div class="stat-card"><div class="stat-label">Energy Generation</div><div class="stat-value" id="energyGeneration">0.00/sec</div></div>
             <div class="stat-card"><div class="stat-label">Universe Age</div><div class="stat-value" id="universeAge">0.00 eons</div></div>
         </div>
-
         <div class="buttons-row">
             <button class="main-button" id="bigBangReset">🌀 Big Bang Reset</button>
             <button class="main-button" id="stellarCollapse" style="display:none;">⭐ Stellar Collapse</button>
             <button class="main-button" id="quantumLeap" style="display:none;">🔮 Quantum Leap</button>
         </div>
-
         <div class="tabs">
             <div class="tab active" data-tab="cosmic-research">🔬 Cosmic Research</div>
             <div class="tab" data-tab="dark-matter" style="display:none;">🌑 Dark Matter</div>
-            <div class="tab" data-tab="quantum" style="display:none;">🔮 Quantum</div>
+            <div class="tab" data-tab="quantum" style="display:none;">🔮 Quantum Leap</div>
             <div class="tab" data-tab="dust">✨ Dust</div>
         </div>
-
-        <div class="tab-content active" id="cosmic-research"><div class="upgrades-grid" id="cosmicUpgrades"></div></div>
+        <div class="tab-content active" id="cosmic-research">
+            <div class="upgrades-grid" id="cosmicUpgrades"></div>
+        </div>
         <div class="tab-content" id="dark-matter">
             <div class="stat-card" style="margin-bottom:20px;"><div class="stat-label">Dark Matter</div><div class="stat-value" id="darkMatter">0.00</div></div>
             <div class="upgrades-grid" id="darkMatterUpgrades"></div>
@@ -223,21 +194,17 @@
             <div class="upgrades-grid" id="dustUpgrades"></div>
         </div>
     </div>
-
+    <audio id="bgMusic" loop preload="auto"><source src="assets/space-ambient.mp3" type="audio/mpeg"></audio>
     <div class="notification" id="notification"></div>
-
     <script>
-        // Game state
         let gameState = {
-            cosmicEnergy: 1, energyGeneration: 1, universeAge: 0, darkMatter: 0, quantumLeaps: 0, totalQuantumLeaps: 0,
+            cosmicEnergy: 1, energyGeneration: 0, universeAge: 0, darkMatter: 0, quantumLeaps: 0, totalQuantumLeaps: 0,
             upgrades: {}, milestones: [], dust: 0, lastDustCollection: 0, dustCollections: 0, bestCosmicEnergy: 1,
             bigBangClicks: 0, bigBangLastClick: 0, shown: {}
         };
-
-        // Upgrade definitions - Compact format [id, name, icon, cost, effect, mult/formula, options]
         const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
-        
         const cosmicRaw = [
+            ['awakening', 'Awakening', '💫', 0, 'Begin energy generation', null, {startGeneration:true}],
             ['stellarFusion', 'Stellar Fusion', '⭐', 10, 'Double energy generation', 2],
             ['galacticNetwork', 'Galactic Network', '🌌', 25, 'Triple energy flow', 3],
             ['temporalAcceleration', 'Temporal Acceleration', '⏰', 75, 'Energy boost scales with age', s => s.universeAge/80+1],
@@ -246,13 +213,13 @@
             ['timeDistortionField', 'Time Distortion Field', '🕳️', 12500, 'Temporal boost', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/75,0.84)/1.2+1 : Math.pow(s.universeAge/50,0.95)+1, {showBoost:true}],
             ['nebulaHarvesting', 'Nebula Harvesting', '☁️', 50000, '3x energy from cosmic nebulae', 3],
             ['pulsarSync', 'Pulsar Synchronization', '🌟', 150000, '3.5x energy from pulsar emissions', 3.5],
-            ['quasarChanneling', 'Quasar Channeling', '☀️', 1500000, '2.5x energy boost from quasar power', 2.5],
-            ['cosmicMultiplier', 'Cosmic Energy Multiplier', '✖️', 5e6, 'x5 cosmic energy before 250M, then x3', s => s.cosmicEnergy<2.5e8?5:3],
-            ['cosmicEnergyBoost', 'Cosmic Energy Boost', '⚡', 25e6, 'x2.5 cosmic energy', 2.5],
-            ['energyBoostsDarkMatter', 'Energy Boosts Dark Matter', '🌀', 75e6, 'Cosmic energy boosts dark matter', s => Math.pow(s.cosmicEnergy,0.08)/1.3+1, {showBoost:true, boostsDM:true}],
-            ['timeBoostsDarkMatter', 'Time Boosts Dark Matter', '⏳', 15e7, 'Time boosts dark matter', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/500,0.8)+1 : Math.pow(s.universeAge/450,0.87)+1, {showBoost:true, boostsDM:true}],
-            ['energyBooststself', 'Energy Boosts Itself', '♾️', 8e8, 'Cosmic energy boosts itself', s => Math.pow(Math.pow(s.cosmicEnergy, s.upgrades.energyBoostBase?0.06:0.04),1.05)+1, {showBoost:true}],
-            ['darkMatterBoost', 'Dark Matter Boost', '🌑⚡', 2e9, 'x2 dark matter', 2, {boostsDM:true}],
+            ['quasarChanneling', 'Quasar Channeling', '☀️', 6000000, '2.5x energy boost from quasar power', 2.5],
+            ['cosmicMultiplier', 'Cosmic Energy Multiplier', '✖️', 2e7, 'x5 cosmic energy before 250M, then x3', s => s.cosmicEnergy<2.5e8?5:3],
+            ['cosmicEnergyBoost', 'Cosmic Energy Boost', '⚡', 1e8, 'x2.5 cosmic energy', 2.5],
+            ['energyBoostsDarkMatter', 'Energy Boosts Dark Matter', '🌀', 3e8, 'Cosmic energy boosts dark matter', s => Math.pow(s.cosmicEnergy,0.08)/1.3+1, {showBoost:true, boostsDM:true}],
+            ['timeBoostsDarkMatter', 'Time Boosts Dark Matter', '⏳', 6e8, 'Time boosts dark matter', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/500,0.8)+1 : Math.pow(s.universeAge/450,0.87)+1, {showBoost:true, boostsDM:true}],
+            ['energyBooststself', 'Energy Boosts Itself', '♾️', 3.2e9, 'Cosmic energy boosts itself', s => Math.pow(Math.pow(s.cosmicEnergy, s.upgrades.energyBoostBase?0.06:0.04),1.05)+1, {showBoost:true}],
+            ['darkMatterBoost', 'Dark Matter Boost', '🌑⚡', 8e9, 'x2 dark matter', 2, {boostsDM:true}],
             ['unlockQuantumForever', 'Unlock Quantum Leap Forever', '🔮', 1e10, 'Permanently unlock quantum leap', null],
             ['cosmicEnergyTriple', 'Cosmic Energy Triple', '⚡³', 15e12, 'x3 cosmic energy boost', 3],
             ['galacticEvents', 'Galactic Events', '🌠', 1e14, '15% chance/sec for x30 energy', null],
@@ -261,9 +228,9 @@
             ['awesomeBoost', 'AWESOME BOOST', '🔥', 5e17, 'Cosmic energy boosts itself again', s => (Math.log10(Math.max(s.cosmicEnergy,1))+1)*(s.upgrades.improvementAgain?Math.log10(Math.max(s.cosmicEnergy,1))/2:1), {showBoost:true}],
             ['unoriginalAwesomeBoost', 'Unoriginal Awesome Boost', '🔥💭', 8e19, 'Cosmic energy boost unoriginally', s => {let b=Math.log(Math.max(s.cosmicEnergy,1))/Math.log(100)/5+1; return s.upgrades.boostItElse?Math.pow(b,1.4):b;}, {showBoost:true, alsoBoostsDM:s=>s.upgrades.reallyFakeUpgrade}],
             ['quantumEnergy', 'Quantum Energy', '🔮⚡', 5e20, 'x1.5 quantum leap gains', 1.5, {boostsQL:true}],
-            ['priceLeap', 'Price Leap', '💰🚀', 3e23, 'x1.5 energy, DM & quantum', 1.5, {boostsDM:true, boostsQL:true}],
-            ['deserved', 'Deserved', '👑', 1e24, 'Energy multiplier ^1.04', null, {powerBoost:1.04}],
-            ['thatsDefinitelyGood', "That's Definitely Good", '👍', 4e25, 'Cosmic energy ^1.02', s => Math.pow(s.cosmicEnergy,0.02), {showBoost:true}],
+            ['priceLeap', 'Price Leap', '💰🚀', 3e23, 'x1.4 energy, DM & quantum', 1.4, {boostsDM:true, boostsQL:true}],
+            ['deserved', 'Deserved', '👑', 1e24, 'Energy multiplier ^1.035', null, {powerBoost:1.035}],
+            ['thatsDefinitelyGood', "That's Definitely Good", '👍', 4e25, 'Cosmic energy ^1.018', s => Math.pow(s.cosmicEnergy,0.018), {showBoost:true}],
             ['nerfingNerf', 'Nerfing Nerf', '⏰💪', 6e26, 'Age boosts itself', s => Math.pow(s.universeAge,0.08)+1, {showBoost:true, boostsTime:true}],
             ['reallyFakeUpgrade', 'Really Fake Upgrade', '🔥💭🌑', 7e27, 'Unoriginal Boost also boosts DM', null],
             ['justGetItAgain', 'Just Get It Again', '💥🌑', 2e31, 'x5 dark matter', 5, {boostsDM:true}],
@@ -274,46 +241,44 @@
             ['getItRn', 'get it rn', '⚡🔥', 3e46, 'x7 cosmic energy', 7],
             ['NICE', 'NICE!', '👌', 1e50, 'Energy ^1.05', null, {powerBoost:1.05}],
             ['theyAllAreAmazing', 'they all are amazing', '🌟💫', 8e52, 'x2 cosmic energy', 2],
-            ['finallyWorthIt', 'finally worth it', '💯', 1e54, 'x100 cosmic energy', 100],
-            ['notWorthIt', 'not worth it', '🌑💯', 1e57, 'x100 dark matter', 100, {boostsDM:true}]
+            ['finallyWorthIt', 'finally worth it', '💯', 1e54, 'x10 cosmic energy', 10],
+            ['notWorthIt', 'not worth it', '🌑💯', 1e57, 'x10 dark matter', 10, {boostsDM:true}]
         ];
-
         const darkMatterRaw = [
-            ['darkEnergyInfusion', 'Dark Energy Infusion', '🌑', 3, '2x cosmic energy', 2],
-            ['recoverBoost', 'Recover Boost', '🔄⚡', 2, 'x1.8 cosmic energy', 1.8],
+            ['darkEnergyInfusion', 'Dark Energy Infusion', '🌑', 3, '1.5x cosmic energy', 1.5],
+            ['recoverBoost', 'Recover Boost', '🔄⚡', 2, 'x1.4 cosmic energy', 1.4],
             ['timeBooster', 'Time Booster', '⏰', 1.5, 'x2 universe age gain', 2, {boostsTime:true}],
             ['universalHarmony', 'Universal Harmony', '🔮', 5, '1.3x DM & energy', 1.3, {boostsDM:true}],
             ['voidManipulation', 'Void Manipulation', '⚫', 12, '2x energy from void', 2],
-            ['cosmicMultiplierDM', 'Cosmic Energy Multiplier', '✖️', 20, 'x5 cosmic energy', 5],
+            ['cosmicMultiplierDM', 'Cosmic Energy Multiplier', '✖️', 20, 'x4 cosmic energy', 4],
             ['temporalDilation', 'Temporal Dilation Field', '⏳', 50, '2x energy + 2x age', 2, {boostsTime:true}],
             ['cosmicStorm', 'Cosmic Storm', '⛈️', 100, '3x energy from storms', 3],
-            ['magnitudeScaling', 'Magnitude Scaling', '📏', 250, 'x1.15 per OOM achieved', s => Math.pow(1.15, Math.floor(Math.log10(Math.max(s.cosmicEnergy,1))))],
-            ['researchSynergy', 'Research Synergy', '🔬', 500, 'x1.1 DM per research', s => Math.pow(1.1, Object.values(s.upgrades).filter(v=>v>0).length), {boostsDM:true, showBoost:true}],
+            ['magnitudeScaling', 'Magnitude Scaling', '📏', 250, 'x1.11 per OOM achieved', s => Math.pow(1.11, Math.floor(Math.log10(Math.max(s.cosmicEnergy,1))))],
+            ['researchSynergy', 'Research Synergy', '🔬', 500, 'x1.08 DM per research', s => Math.pow(1.08, Object.values(s.upgrades).filter(v=>v>0).length), {boostsDM:true, showBoost:true}],
             ['hyperspeedEvolution', 'Hyperspeed Evolution', '🚀', 3000, '2x energy + 2x age', 2, {boostsTime:true}],
             ['infinityEngine', 'Infinity Engine', '♾️', 8000, 'DM boosts itself', s => Math.pow(s.darkMatter,0.04)+1, {boostsDM:true, showBoost:true}],
             ['darkMatterSurge', 'Dark Matter Surge', '🌊', 40000, '2x energy final boost', 2],
-            ['researchSynergy2', 'Research Synergy.2', '🔬⚡', 1e5, 'Research Synergy^0.5 boosts energy', s => s.upgrades.researchSynergy ? Math.pow(Math.pow(1.1,Object.values(s.upgrades).filter(v=>v>0).length),0.5) : 1, {showBoost:true}],
+            ['researchSynergy2', 'Research Synergy.2', '🔬⚡', 1e5, 'Research Synergy^0.5 boosts energy', s => s.upgrades.researchSynergy ? Math.pow(Math.pow(1.08,Object.values(s.upgrades).filter(v=>v>0).length),0.5) : 1, {showBoost:true}],
             ['magnitude2', 'Magnitude.2', '📐', 2e5, 'x1.05 per upgrade owned', s => Math.pow(1.05, Object.values(s.upgrades).reduce((a,b)=>a+b,0)), {showBoost:true}],
             ['synergisedEnergy', 'Synergised Energy', '🔗', 5e5, 'DM boosts energy', s => Math.pow(s.darkMatter,0.08)*1.2+1, {showBoost:true}],
             ['improvisation', 'Improvisation', '🎭', 5e6, 'x5 cosmic energy', 5],
             ['galacticNetworkQ', 'Galactic Network?', '🌌❓', 5e7, 'x3 dark matter', 3, {boostsDM:true}],
             ['evenMoreNetwork', 'Even More Network', '🌌🌌', 5e8, 'x3 cosmic energy', 3],
-            ['cootl', 'cootl', '🔥', 2e9, 'x2 DM, x4 energy, x2 quantum', 4, {boostsDM:true, dmMult:2, boostsQL:true, qlMult:2}],
+            ['cootl', 'cootl', '🔥', 2e9, 'x3 energy, x1.7 DM, x1.85 quantum', 3, {boostsDM:true, dmMult:1.7, boostsQL:true, qlMult:1.85}],
             ['deserved2', 'Deserved.2', '👑²', 3e11, 'DM multiplier ^1.02', null, {powerBoostDM:1.02}],
             ['simple', 'Simple', '⚡', 1e12, 'x2 cosmic energy', 2],
             ['bruhTooUnoriginal', 'Bruh Too Unoriginal', '🔗🌑', 15e12, 'x5 cosmic energy', 5],
-            ['justGetIt', 'Just Get It', '💥', 69e12, 'x20 cosmic energy', 20],
+            ['justGetIt', 'Just Get It', '💥', 69e12, 'x15 cosmic energy', 15],
             ['alr', 'alr', '👌', 2e15, 'x4 cosmic energy', 4],
             ['pushingUpToAllInOne', 'pushing up to all in one', '⬆️', 1e16, 'x3 energy before 1e34', s => s.cosmicEnergy<1e34?3:1],
-            ['leapTechnology', 'leap technology', '🚀🔮', 1e17, 'x2 quantum leaps', 2, {boostsQL:true}],
+            ['leapTechnology', 'leap technology', '🚀🔮', 1e17, 'x1.8 quantum leaps', 1.8, {boostsQL:true}],
             ['cheapScaleButGood', 'cheap scale but good', '💰⚡', 7e17, 'x2.5 cosmic energy', 2.5],
             ['continue', 'continue', '🔄⚡', 6e20, 'Energy boosts itself again', s => Math.pow(s.cosmicEnergy,0.007)*2+1, {showBoost:true}],
-            ['scaleReduce', 'Scale Reduce', '📉⚖️', 2e23, 'Reduces milestone scaling', null],
+            ['scaleReduce', 'Scale Reduce', '📉⚖️', 2e23, 'Reduces milestone scaling by x3', null, {persistent:true}],
             ['boost', 'boost', '🚀', 1e23, 'x3 dark matter', 3, {boostsDM:true}],
             ['ifYouEverNeedIt', 'if you ever need it', '🆘⚡', 7e24, 'x3 cosmic energy', 3],
             ['awesomeDarkMatter', 'AWESOME!', '🔥🌑', 1e25, 'Dark matter ^1.025', null, {powerBoostDM:1.025}]
         ];
-
         const quantumRaw = [
             ['quantumBoost1', 'Quantum Boost I', '⚡', 1, 'x1.5 energy & DM', 1.5, {boostsDM:true}],
             ['quantumBoost2', 'Quantum Boost II', '⚡⚡', 3, 'x3 cosmic energy', 3],
@@ -328,7 +293,7 @@
             ['bestRecordResonance', 'Best Record Resonance', '🏆', 500, 'x5 energy after best', 5, {afterBest:true}],
             ['greatOne', 'Great One', '⭐', 1000, 'x2 energy & DM', 2, {boostsDM:true}],
             ['thisIsPeak', 'This is Peak', '🔥⭐', 1300, 'Energy boosts itself', s => Math.pow(s.cosmicEnergy,0.02)+1.2, {showBoost:true}],
-            ['ohItWasSlow', 'Oh It Was Slow', '🌑🚀', 2000, '7% DM gen & x2.5 QL', 2.5, {boostsQL:true}],
+            ['ohItWasSlow', 'Oh It Was Slow', '🌑🚀', 2000, '7% DM gen & x2 QL', 2, {boostsQL:true}],
             ['youNeedTimewall', 'You Need Timewall', '⏰🛡️', 7000, 'x3 DM & energy', 3, {boostsDM:true}],
             ['actualTimewall', 'actual timewall', '🛡️⏰', 30000, 'x3 DM & energy', 3, {boostsDM:true}],
             ['wasThatUpgradeTooOp', 'was that upgrade too op?', '🤔💥', 60000, 'x2 energy & x1.5 DM', 2, {boostsDM:true, dmMult:1.5}],
@@ -339,7 +304,6 @@
             ['energyFromSupernova', 'Energy from Supernova', '🌟💥', 3e7, 'x5 cosmic energy', 5],
             ['amazingQuantumLeaps', 'AMAZING!', '🚀🔮', 1e8, 'Quantum leaps ^1.015', null, {powerBoostQL:1.015}]
         ];
-
         const dustRaw = [
             ['sproutInspired', 'Inspired by sprouts', '🌱', 1, 'Gain 2 dust', null, {givesInstantDust:2}],
             ['boost1', 'Boost I', '⚡', 8, 'x1.15 cosmic energy', 1.15],
@@ -350,25 +314,19 @@
             ['improve', 'Improve Collection Time', '⏰', 30, 'Decrease to 50 min', null],
             ['thisCanBeGenerated', 'this can be generated?', '✨🔧', 50, 'Generate 0.001 dust/sec', null]
         ];
-
-        // Convert raw arrays to full upgrade objects
-        const makeUpgrade = (raw, defaults) => raw.map(([id,name,icon,cost,effect,mult,opts={}]) => 
+        const makeUpgrade = (raw, defaults) => raw.map(([id,name,icon,cost,effect,mult,opts={}]) =>
             ({...defaults, id, name, icon, cost, effect, mult, ...opts}));
-        
         const cosmicUpgrades = makeUpgrade(cosmicRaw, upgradeDefaults.cosmic);
         const darkMatterUpgrades = makeUpgrade(darkMatterRaw, upgradeDefaults.dm);
         const quantumUpgrades = makeUpgrade(quantumRaw, upgradeDefaults.q);
         const dustUpgrades = makeUpgrade(dustRaw, upgradeDefaults.dust);
         const allUpgrades = [...cosmicUpgrades, ...darkMatterUpgrades, ...quantumUpgrades, ...dustUpgrades];
-
-        // Milestone system
         const getMilestoneReq = (i) => {
             const base = [10,100,1e3,1e4,1e5,5e5,2e6,1e7,5e7];
             if (i < 9) return base[i];
             const scaleReduce = gameState.upgrades.scaleReduce;
-            return scaleReduce ? 1.5e8 * Math.pow(3, i-9) : 5e8 * Math.pow(10, i-9);
+            return scaleReduce ? (1.5e8 * Math.pow(3, i-9)) / 3 : 5e8 * Math.pow(10, i-9);
         };
-
         const milestoneEffects = [
             'DM gen improved to 3%', 'x1.5 cosmic energy', 'x1.2 DM per milestone', 'x1.5 cosmic energy',
             'x2 quantum leaps', 'x1.5 dark matter', 'x1.2 QL per milestone', 'DM gen improved to 15%',
@@ -376,8 +334,6 @@
             'x2 dark matter', 'x1.5 all resources', 'x2 cosmic energy', 'x1.4 QL gain',
             'x3 dark matter', 'x2 all resources', 'x5 cosmic energy', 'x10 all resources'
         ];
-
-        // Notification system
         const notifications = [
             {key: 'trillion', threshold: 1e12, resource: 'cosmicEnergy', msg: '🌌 First trillion energy!'},
             {key: '100trillion', threshold: 1e14, resource: 'cosmicEnergy', msg: '🔬 100 trillion! Quantum unlocked!'},
@@ -385,29 +341,21 @@
             {key: 'ultimate', threshold: 1e40, resource: 'cosmicEnergy', msg: '🌟 ULTIMATE: 1e40 achieved!'},
             {key: 'quantumSci', threshold: 1e15, resource: 'quantumLeaps', msg: '🔬 Quantum scientific notation!'}
         ];
-
-        // Format numbers
         function formatNumber(num, isQL = false) {
             if (!isFinite(num) || isNaN(num) || num === 0) return isQL ? '0' : '0.00';
             if (num < 0) return '-' + formatNumber(-num, isQL);
-            
             const tiers = [{t:1e15,s:'',sci:true}, {t:1e12,s:'T'}, {t:1e9,s:'B'}, {t:1e6,s:'M'}, {t:1e3,s:'K'}, {t:0,s:''}];
             const tier = tiers.find(t => num >= t.t);
-            
             if (tier.sci) return num.toExponential(2);
             const val = tier.t ? num/tier.t : num;
             return (isQL && num < 1000 ? Math.floor(val) : val.toFixed(2)) + tier.s;
         }
-
-        // Show notification
         function showNotification(msg) {
             const notif = document.getElementById('notification');
             notif.textContent = msg;
             notif.classList.add('show');
             setTimeout(() => notif.classList.remove('show'), 3000);
         }
-
-        // Check notifications
         function checkNotifications() {
             notifications.forEach(n => {
                 if (!gameState.shown[n.key] && gameState[n.resource] >= n.threshold) {
@@ -416,12 +364,9 @@
                 }
             });
         }
-
-        // Dust collection
         function getDustTime() { return gameState.upgrades.improve ? 50*60*1000 : 60*60*1000; }
         function getDustGain() { return 10 + Math.floor(gameState.dustCollections/10)*2; }
         function canCollectDust() { return Date.now() - gameState.lastDustCollection >= getDustTime(); }
-        
         function collectDust() {
             if (!canCollectDust()) return showNotification('Dust not ready!');
             const gain = getDustGain();
@@ -431,7 +376,6 @@
             showNotification(`✨ Collected ${gain} Dust! (#${gameState.dustCollections})`);
             updateDisplay();
         }
-
         function updateDustButton() {
             const btn = document.getElementById('collectDustBtn');
             if (canCollectDust()) {
@@ -444,17 +388,12 @@
                 btn.textContent = `✨ Collect Dust (${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')})`;
             }
         }
-
-        // Calculate multipliers - OPTIMIZED VERSION
         function calculateMultipliers() {
             let mults = {energy: 1, darkMatter: 1, quantum: 1, time: 1};
             const s = gameState;
-
-            // Process all upgrades with simple multipliers
             allUpgrades.forEach(u => {
                 const lvl = s.upgrades[u.id] || 0;
                 if (lvl === 0) return;
-
                 if (typeof u.mult === 'number') {
                     mults.energy *= Math.pow(u.mult, lvl);
                     if (u.boostsDM) mults.darkMatter *= Math.pow(u.dmMult || u.mult, lvl);
@@ -467,8 +406,6 @@
                     if (u.boostsTime) mults.time *= boost;
                     if (!u.boostsDM && !u.boostsQL && !u.boostsTime) mults.energy *= boost;
                 }
-
-                // Special cases
                 if (u.untilBest && s.cosmicEnergy >= s.bestCosmicEnergy) mults.energy /= u.mult;
                 if (u.afterBest && s.cosmicEnergy >= s.bestCosmicEnergy) mults.energy *= u.mult;
                 if (u.givesInstantDust && !s[`received_${u.id}`]) {
@@ -476,18 +413,14 @@
                     s[`received_${u.id}`] = true;
                 }
             });
-
-            // Milestones
             let mCount = s.milestones.filter(m=>m).length;
             if (mCount > 1) mults.energy *= Math.pow(1.5, mCount - 1);
             if (mCount >= 3) mults.darkMatter *= Math.pow(1.2, mCount - 1);
             if (mCount >= 6) mults.darkMatter *= 1.5;
             if (mCount >= 7) mults.quantum *= Math.pow(1.2, mCount - 4);
             if (mCount >= 5) mults.quantum *= 2;
-
-            // All-in-one upgrade (complex multi-effect)
             if (s.upgrades.allInOne) {
-                mults.energy *= 1.2; mults.darkMatter *= 1.2; mults.quantum *= 1.2;
+                mults.energy *= 1.15; mults.darkMatter *= 1.15; mults.quantum *= 1.15;
                 const tBoost = Math.pow(s.universeAge/20000, 0.55)/9+1;
                 mults.energy *= tBoost; mults.darkMatter *= tBoost; mults.quantum *= tBoost; mults.time *= tBoost;
                 mults.energy *= Math.pow(s.cosmicEnergy, 0.005)+1;
@@ -504,124 +437,98 @@
                 const ageBoost = Math.pow(s.cosmicEnergy*s.darkMatter*Math.max(s.quantumLeaps,1), 0.001)+1;
                 mults.time *= ageBoost;
             }
-
-            // Power boosts
-            if (s.upgrades.deserved) mults.energy = Math.pow(mults.energy, 1.04);
+            if (s.upgrades.deserved) mults.energy = Math.pow(mults.energy, 1.035);
             if (s.upgrades.NICE) mults.energy = Math.pow(mults.energy, 1.05);
             if (s.upgrades.deserved2) mults.darkMatter = Math.pow(mults.darkMatter, 1.02);
             if (s.upgrades.awesomeDarkMatter) mults.darkMatter = Math.pow(mults.darkMatter, 1.025);
             if (s.upgrades.amazingQuantumLeaps) mults.quantum = Math.pow(mults.quantum, 1.015);
-
-            // Age dividers
             if (s.universeAge >= 1000) mults.time /= Math.pow(Math.pow(s.universeAge, 0.21), 0.95) + 1;
             if (s.universeAge >= 1200) mults.time /= 1.5;
-
             return mults;
         }
-
-        // Calculate reset gains
         function calcDarkMatterGain() {
-            const base = Math.pow(gameState.cosmicEnergy, 0.13) + 1;
+            const base = Math.pow(gameState.cosmicEnergy, 0.13) / 1.8 + 1;
             return base * calculateMultipliers().darkMatter;
         }
-
         function calcQuantumLeapGain() {
             const base = Math.pow(gameState.darkMatter, 0.1) + 1;
             return Math.floor(base * calculateMultipliers().quantum);
         }
-
-        // Perform resets - UNIFIED FUNCTION
         function performReset(type) {
             const s = gameState;
             const now = Date.now();
-
             if (type === 'bigBang') {
                 if (now - s.bigBangLastClick > 10000) s.bigBangClicks = 0;
                 s.bigBangClicks++;
                 s.bigBangLastClick = now;
                 if (s.bigBangClicks < 5) return showNotification(`${5-s.bigBangClicks} more clicks needed!`);
-                
                 s.bigBangClicks = 0;
                 const dustUpgradeIds = dustUpgrades.map(u => u.id);
+                const persistentUpgrades = darkMatterUpgrades.filter(u => u.persistent && s.upgrades[u.id]).map(u => u.id);
                 const preserved = {};
                 dustUpgradeIds.forEach(id => { if (s.upgrades[id]) preserved[id] = s.upgrades[id]; });
-                
-                Object.assign(s, {cosmicEnergy:1, energyGeneration:1, universeAge:0, darkMatter:0, quantumLeaps:0, totalQuantumLeaps:0, upgrades:preserved, milestones:[]});
-                
+                persistentUpgrades.forEach(id => { if (s.upgrades[id]) preserved[id] = s.upgrades[id]; });
+                Object.assign(s, {cosmicEnergy:1, energyGeneration:0, universeAge:0, darkMatter:0, quantumLeaps:0, totalQuantumLeaps:0, upgrades:preserved, milestones:[]});
                 document.querySelector('[data-tab="dark-matter"]').style.display = 'none';
                 document.querySelector('[data-tab="quantum"]').style.display = 'none';
                 document.getElementById('stellarCollapse').style.display = 'none';
                 document.getElementById('quantumLeap').style.display = 'none';
-                
                 showNotification('🌀 Big Bang Reset Complete!');
             }
-
             if (type === 'stellar') {
                 if (s.cosmicEnergy < 500000) return showNotification('Need 500K energy!');
                 const gain = calcDarkMatterGain();
                 s.darkMatter += gain;
-                s.cosmicEnergy = 1; s.energyGeneration = 1; s.universeAge = 0;
+                s.cosmicEnergy = 1; s.energyGeneration = 0; s.universeAge = 0;
                 cosmicUpgrades.forEach(u => s.upgrades[u.id] = 0);
                 showNotification(`⭐ Stellar Collapse! +${formatNumber(gain)} Dark Matter`);
             }
-
             if (type === 'quantum') {
                 if (s.darkMatter < 50000) return showNotification('Need 50K dark matter!');
                 const gain = calcQuantumLeapGain();
                 s.quantumLeaps += gain;
                 s.totalQuantumLeaps += gain;
-                s.cosmicEnergy = 1; s.energyGeneration = 1; s.universeAge = 0; s.darkMatter = 0;
-                [...cosmicUpgrades, ...darkMatterUpgrades].forEach(u => s.upgrades[u.id] = 0);
-                if (s.upgrades.scaleReduce) s.upgrades.scaleReduce = 1;
+                s.cosmicEnergy = 1; s.energyGeneration = 0; s.universeAge = 0; s.darkMatter = 0;
+                const persistentUpgrades = darkMatterUpgrades.filter(u => u.persistent && s.upgrades[u.id]).map(u => u.id);
+                [...cosmicUpgrades, ...darkMatterUpgrades].forEach(u => {
+                    if (!u.persistent || !s.upgrades[u.id]) s.upgrades[u.id] = 0;
+                });
                 updateMilestones();
                 showNotification(`🔮 Quantum Leap! +${formatNumber(gain, true)} QL`);
             }
-
             updateDisplay();
             renderAllUpgrades();
         }
-
-        // Buy upgrade
         function buyUpgrade(upgrade) {
             const s = gameState;
             const lvl = s.upgrades[upgrade.id] || 0;
             if (lvl >= upgrade.maxLevel) return;
-
             const currency = s[upgrade.costType === 'cosmicEnergy' ? 'cosmicEnergy' : upgrade.costType === 'darkMatter' ? 'darkMatter' : upgrade.costType === 'dust' ? 'dust' : 'quantumLeaps'];
             if (currency < upgrade.cost) return;
-
             s[upgrade.costType === 'cosmicEnergy' ? 'cosmicEnergy' : upgrade.costType === 'darkMatter' ? 'darkMatter' : upgrade.costType === 'dust' ? 'dust' : 'quantumLeaps'] -= upgrade.cost;
             s.upgrades[upgrade.id] = lvl + 1;
-
+            if (upgrade.startGeneration && lvl === 0) {
+                s.energyGeneration = 1;
+                startCosmicMusic();
+            }
             if (upgrade.id === 'unlockMilestones') updateMilestones();
-            
             showNotification(`✨ Purchased ${upgrade.name}!`);
             updateDisplay();
             renderAllUpgrades();
         }
-
-        // Game loop
         function gameLoop() {
             const s = gameState;
             s.bestCosmicEnergy = Math.max(s.bestCosmicEnergy, s.cosmicEnergy);
-            
             const mults = calculateMultipliers();
-            
-            // Galactic Events
             let eventBoost = 1;
             if (s.upgrades.galacticEvents && Math.random() < 0.15) {
                 eventBoost = 30;
                 showNotification('🌠 GALACTIC EVENT: x30 Energy!');
             }
-
-            // Generate resources
             const energyGain = Math.min(s.energyGeneration * mults.energy * eventBoost / 10, 1e100);
             const ageGain = Math.min(1 * mults.time / 10, 1000);
-            
             s.cosmicEnergy = Math.min(s.cosmicEnergy + energyGain, 1e308);
             s.universeAge = Math.min(s.universeAge + ageGain, 1e100);
-
-            // Passive dark matter generation
             if (s.upgrades.darkMatterGen) {
                 const potential = Math.pow(s.cosmicEnergy, 0.13) + 1;
                 let genRate = 0.01;
@@ -631,15 +538,10 @@
                 if (mCount >= 8) genRate = 0.15;
                 s.darkMatter += potential * genRate * mults.darkMatter / 10;
             }
-
-            // Passive dust generation
             if (s.upgrades.thisCanBeGenerated) s.dust += 0.0001;
-
             checkNotifications();
             updateDisplay();
         }
-
-        // Update display
         function updateDisplay() {
             const s = gameState;
             document.getElementById('cosmicEnergy').textContent = formatNumber(s.cosmicEnergy);
@@ -650,18 +552,14 @@
             document.getElementById('dustAmount').textContent = formatNumber(s.dust);
             document.getElementById('dustCollections').textContent = s.dustCollections;
             updateDustButton();
-
-            // Show/hide buttons
             const stellarBtn = document.getElementById('stellarCollapse');
             const quantumBtn = document.getElementById('quantumLeap');
-            
             if (s.cosmicEnergy >= 1000) {
                 stellarBtn.style.display = 'block';
                 document.querySelector('[data-tab="dark-matter"]').style.display = 'block';
                 stellarBtn.disabled = s.cosmicEnergy < 500000;
                 stellarBtn.textContent = s.cosmicEnergy >= 500000 ? `⭐ Stellar Collapse (${formatNumber(calcDarkMatterGain())} DM)` : '⭐ Need 500K Energy';
             }
-
             if (s.darkMatter >= 100 || s.upgrades.unlockQuantumForever) {
                 quantumBtn.style.display = 'block';
                 document.querySelector('[data-tab="quantum"]').style.display = 'block';
@@ -669,46 +567,38 @@
                 quantumBtn.textContent = s.darkMatter >= 50000 ? `🔮 Quantum Leap (${formatNumber(calcQuantumLeapGain(), true)} QL)` : '🔮 Need 50K DM';
             }
         }
-
-        // Render upgrades - OPTIMIZED WITH EVENT DELEGATION
         function renderUpgrades(containerId, upgrades) {
             const s = gameState;
             const container = document.getElementById(containerId);
             const currencyMap = {cosmicEnergy: s.cosmicEnergy, darkMatter: s.darkMatter, quantumLeaps: s.quantumLeaps, dust: s.dust};
-            
-            container.innerHTML = upgrades.map(u => {
+            const visibleUpgrades = upgrades.filter((u, i) => i === 0 || (s.upgrades[upgrades[i-1].id] || 0) > 0);
+            container.innerHTML = visibleUpgrades.map(u => {
                 const lvl = s.upgrades[u.id] || 0;
                 const currency = currencyMap[u.costType];
-                const canAfford = currency >= u.cost && lvl < u.maxLevel;
+                const canAfford = currency >= u.cost && lvl < u.maxLevel && (u.cost > 0 || u.cost === 0);
                 const isMaxed = lvl >= u.maxLevel;
-                
                 let boostText = '';
                 if (u.showBoost && lvl > 0 && typeof u.mult === 'function') {
                     boostText = ` <span style="color:#4fd3a7">(Current: x${formatNumber(u.mult(s))})</span>`;
                 }
-                
                 return `<div class="upgrade-card ${canAfford?'affordable':''} ${isMaxed?'maxed':''}" data-id="${u.id}">
                     <span class="upgrade-icon">${u.icon}</span>
                     <div class="upgrade-title">${u.name}${lvl>0?'✓':''}</div>
-                    <div class="upgrade-cost">${isMaxed?'OWNED':`${formatNumber(u.cost)} ${u.costType.replace('cosmicEnergy','Energy').replace('darkMatter','DM').replace('quantumLeaps','QL').replace('dust','Dust')}`}</div>
+                    <div class="upgrade-cost">${isMaxed?'OWNED':u.cost===0?'FREE':`${formatNumber(u.cost)} ${u.costType.replace('cosmicEnergy','Energy').replace('darkMatter','DM').replace('quantumLeaps','QL').replace('dust','Dust')}`}</div>
                     <div class="upgrade-description">${u.effect}${boostText}</div>
                 </div>`;
             }).join('');
         }
-
         function renderAllUpgrades() {
             renderUpgrades('cosmicUpgrades', cosmicUpgrades);
             renderUpgrades('darkMatterUpgrades', darkMatterUpgrades);
             renderUpgrades('quantumUpgrades', quantumUpgrades);
             renderUpgrades('dustUpgrades', dustUpgrades);
         }
-
-        // Update milestones
         function updateMilestones() {
             if (!gameState.upgrades.unlockMilestones) return;
             const container = document.getElementById('milestones');
             const s = gameState;
-            
             container.innerHTML = '<h3 style="color:#64ffda;margin-bottom:20px;text-align:center;">🏆 MILESTONES</h3>' +
                 Array.from({length: 20}, (_, i) => {
                     const req = getMilestoneReq(i);
@@ -722,34 +612,26 @@
                     </div>`;
                 }).join('');
         }
-
-        // Save/Load
         function saveGame() {
             try {
-                localStorage.setItem('cosmicEvolution', JSON.stringify({...gameState, lastSaveTime: Date.now()}));
+                localStorage.setItem('cosmicUpgradeTree', JSON.stringify({...gameState, lastSaveTime: Date.now()}));
             } catch(e) {}
         }
-
         function loadGame() {
             try {
-                const saved = localStorage.getItem('cosmicEvolution');
+                const saved = localStorage.getItem('cosmicUpgradeTree');
                 if (!saved) return;
-                
                 const savedState = JSON.parse(saved);
                 const offlineTime = Date.now() - (savedState.lastSaveTime || Date.now());
                 gameState = {...gameState, ...savedState};
-                
                 if (gameState.lastDustCollection === 0) gameState.lastDustCollection = Date.now() - getDustTime();
-                
                 if (offlineTime > 5000) {
                     const offlineSec = offlineTime / 1000;
                     const mults = calculateMultipliers();
                     const offlineEnergy = (gameState.energyGeneration * mults.energy * offlineSec) / 5;
-                    const offlineAge = (offlineSec * mults.time) / 5;
-                    
+                    const offlineAge = (offlineSec * mults.time) / 200;
                     gameState.cosmicEnergy += offlineEnergy;
                     gameState.universeAge += offlineAge;
-                    
                     if (gameState.upgrades.darkMatterGen) {
                         const potential = Math.pow(gameState.cosmicEnergy, 0.13) + 1;
                         let genRate = 0.01;
@@ -759,22 +641,36 @@
                         if (mCount >= 8) genRate = 0.15;
                         gameState.darkMatter += (potential * genRate * mults.darkMatter * offlineSec) / 5;
                     }
-                    
                     if (gameState.upgrades.thisCanBeGenerated) gameState.dust += 0.001 * offlineSec;
-                    
                     const hrs = Math.floor(offlineTime/3600000), mins = Math.floor((offlineTime%3600000)/60000);
                     showNotification(`Welcome back! Offline ${hrs}h ${mins}m. Gained ${formatNumber(offlineEnergy)} Energy`);
                 }
-                
                 updateDisplay();
                 renderAllUpgrades();
                 updateMilestones();
             } catch(e) {}
         }
-
-        // Initialize
+        let cosmicMusicStarted = false;
+        function startCosmicMusic() {
+            if (cosmicMusicStarted) return;
+            const bgMusic = document.getElementById('bgMusic');
+            bgMusic.volume = 0.4;
+            // Wait for audio to be ready before playing
+            const tryPlay = () => {
+                cosmicMusicStarted = true;
+                bgMusic.play().catch(() => {
+                    // Play was blocked, allow retry
+                    cosmicMusicStarted = false;
+                });
+            };
+            if (bgMusic.readyState >= 2) {
+                tryPlay();
+            } else {
+                bgMusic.addEventListener('canplay', tryPlay, { once: true });
+                bgMusic.load();
+            }
+        }
         function init() {
-            // Create stars
             const starsContainer = document.getElementById('stars');
             for (let i = 0; i < 100; i++) {
                 const star = document.createElement('div');
@@ -785,14 +681,10 @@
                 star.style.animationDelay = Math.random() * 3 + 's';
                 starsContainer.appendChild(star);
             }
-
-            // Event listeners
             document.getElementById('bigBangReset').onclick = () => performReset('bigBang');
             document.getElementById('stellarCollapse').onclick = () => performReset('stellar');
             document.getElementById('quantumLeap').onclick = () => performReset('quantum');
             document.getElementById('collectDustBtn').onclick = collectDust;
-
-            // Tab switching
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.onclick = () => {
                     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -801,8 +693,6 @@
                     document.getElementById(tab.dataset.tab).classList.add('active');
                 };
             });
-
-            // Event delegation for upgrade clicks
             document.querySelectorAll('.upgrades-grid').forEach(grid => {
                 grid.onclick = (e) => {
                     const card = e.target.closest('.upgrade-card');
@@ -811,18 +701,20 @@
                     if (upgrade) buyUpgrade(upgrade);
                 };
             });
-
             loadGame();
+            if (gameState.upgrades.awakening) {
+                document.addEventListener('click', function resumeMusic() {
+                    startCosmicMusic();
+                    document.removeEventListener('click', resumeMusic);
+                }, {once: true});
+            }
             renderAllUpgrades();
             updateDisplay();
             updateMilestones();
-
-            // Start loops
             setInterval(gameLoop, 100);
-            setInterval(renderAllUpgrades, 5000); // Update UI every 5 seconds instead of 1
+            setInterval(renderAllUpgrades, 5000);
             setInterval(saveGame, 10000);
         }
-
         window.onload = init;
     </script>
 </body>
