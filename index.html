@@ -885,13 +885,13 @@
             const dustField = document.getElementById('dustField');
             const dustFieldUpgrades = [
                 {id: 'df_value', name: 'Value', icon: '💎', desc: '+0.01 dust per click per level', base: 6, priceScale: 1.6, maxLevel: 10},
-                {id: 'df_spawn', name: 'Spawn Time', icon: '⏱️', desc: '/1.2 spawn time per level', base: 4, priceScale: 1.5, maxLevel: 8},
+                {id: 'df_spawn', name: 'Spawn Time', icon: '⏱️', desc: '/1.12 spawn time per level', base: 4, priceScale: 1.5, maxLevel: 8},
                 {id: 'df_greater', name: 'Greater', icon: '📐', desc: 'x1.2 sparkle size & +1 max sparkles per level', base: 7, priceScale: 1.8, maxLevel: 7}
             ];
             function getDFLevel(id) { return gameState.upgrades[id] || 0; }
             function getDFCost(dfu) { return Math.floor(dfu.base * Math.pow(dfu.priceScale, getDFLevel(dfu.id))); }
             function getDustFieldValue() { return 0.02 + 0.01 * getDFLevel('df_value'); }
-            function getDustSpawnInterval() { return 2000 / Math.pow(1.2, getDFLevel('df_spawn')); }
+            function getDustSpawnInterval() { return 2000 / Math.pow(1.12, getDFLevel('df_spawn')); }
             function getDustMaxSparkles() { return 10 + getDFLevel('df_greater'); }
             function getDustSparkleSize() { return 1 + 0.2 * getDFLevel('df_greater'); }
             function updateDustFieldText() {
