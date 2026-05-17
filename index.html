@@ -257,6 +257,7 @@
     </div>
     <audio id="bgMusic" loop preload="auto"><source src="assets/Space%20Ambient%20Music%20for%20relaxing%20or%20study%20%20New%20Planet%20(Short%20Version)%20(1).mp3" type="audio/mpeg"></audio>
     <audio id="quantumSFX" preload="auto"><source src="assets/Quantumleapreset.mp3" type="audio/mpeg"></audio>
+    <audio id="stellarSFX" preload="auto"><source src="assets/DarkMatterReset.mp3" type="audio/mpeg"></audio>
     <div class="notification" id="notification"></div>
     <script>
         let gameState = {
@@ -624,6 +625,8 @@
                 s.cosmicEnergy = 1; s.energyGeneration = 0; s.universeAge = 0;
                 cosmicUpgrades.forEach(u => s.upgrades[u.id] = 0);
                 s.lastResetTime = Date.now();
+                const sfx = document.getElementById('stellarSFX');
+                if (sfx) { sfx.currentTime = 0; sfx.play().catch(() => {}); }
                 showNotification(`⭐ Stellar Collapse! +${formatNumber(gain)} Dark Matter`);
             }
             if (type === 'quantum') {
