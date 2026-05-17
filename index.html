@@ -344,7 +344,7 @@
         ];
         const quantumRaw = [
             ['unlockPower', 'Unlock Power', '⚡', 1, 'Unlock powerful multi-level upgrades', null],
-            ['quantumBoost2', 'Quantum Boost II', '⚡⚡', 3, 'x3 cosmic energy', 3],
+            ['quantumBoost2', 'Quantum Boost II', '⚡⚡', 3, 'x1.5 cosmic energy', 1.5],
             ['darkMatterGen', 'Dark Matter Generation', '🌑⚡', 5, 'Generate 1% DM from reset', null],
             ['unlockMilestones', 'Unlock Milestones', '🏆', 10, 'Unlock milestone system', null],
             ['quantumBoost', 'Quantum Boost', '🔮⚡', 20, 'x2 energy & DM', 2, {boostsDM:true}],
@@ -382,7 +382,7 @@
             {
                 id: 'weak', name: 'Weak', icon: '💫',
                 desc: 'x1.025 cosmic energy per level',
-                base: 50, priceScale: 100, priceExponent: 1.2, maxLevel: 999,
+                base: 50, priceScale: 50, priceExponent: 1.2, maxLevel: 999,
                 boostText: lvl => `x${formatNumber(Math.pow(1.025, lvl))} energy`
             },
             {
@@ -394,10 +394,10 @@
             {
                 id: 'timeBased', name: 'Time Based', icon: '⏳',
                 desc: 'Cosmic energy boost based on time since last reset',
-                base: 1000, priceScale: 50, priceExponent: 1.1, maxLevel: 999,
+                base: 100, priceScale: 50, priceExponent: 1.1, maxLevel: 999,
                 boostText: lvl => {
                     const sec = (Date.now() - gameState.lastResetTime) / 1000;
-                    const boost = Math.pow(sec, 0.25) + (0.1 + lvl / 10);
+                    const boost = Math.pow(sec, 0.12) + (0.1 + lvl / 20);
                     return `x${formatNumber(boost)} energy (current)`;
                 }
             },
