@@ -159,6 +159,40 @@
         .power-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(255, 107, 157, 0.2); border-color: var(--glow-accent); }
         .power-card.affordable { border-color: var(--glow-secondary); box-shadow: 0 0 15px rgba(79, 211, 167, 0.3); }
         .power-level { color: #ff6b9d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; }
+        .dust-field {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            margin: 0 auto 30px auto;
+            background: linear-gradient(135deg, rgba(100,255,218,0.03) 0%, rgba(79,211,167,0.03) 100%);
+            border: 1px solid rgba(100,255,218,0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            user-select: none;
+        }
+        .dust-sparkle {
+            position: absolute;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            animation: sparkleIn 0.3s ease;
+            z-index: 1;
+        }
+        .dust-sparkle:hover { transform: scale(1.3); }
+        @keyframes sparkleIn {
+            0% { opacity: 0; transform: scale(0); }
+            60% { transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes sparklePop {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+        .dust-sparkle.pop {
+            animation: sparklePop 0.2s ease forwards;
+            pointer-events: none;
+        }
         @media (max-width: 768px) {
             .title { font-size: 2rem; }
             .main-stats { flex-direction: column; }
@@ -209,6 +243,8 @@
             <div class="stat-card" style="margin-bottom:20px;"><div class="stat-label">Collections</div><div class="stat-value" id="dustCollections">0</div></div>
             <div class="buttons-row" style="margin-bottom:30px;"><button class="main-button" id="collectDustBtn">✨ Collect Dust</button></div>
             <div class="upgrades-grid" id="dustUpgrades"></div>
+            <div style="margin-top:30px;text-align:center;"><h3 style="color:#64ffda;margin-bottom:15px;">✨ Dust Field</h3><p style="color:#b0bec5;margin-bottom:15px;font-size:0.9rem;">Click sparkles to gain 0.01 dust each!</p></div>
+            <div class="dust-field" id="dustField"></div>
         </div>
     </div>
     <audio id="bgMusic" loop preload="auto"><source src="assets/Space%20Ambient%20Music%20for%20relaxing%20or%20study%20%20New%20Planet%20(Short%20Version)%20(1).mp3" type="audio/mpeg"></audio>
@@ -298,7 +334,7 @@
         ];
         const quantumRaw = [
             ['unlockPower', 'Unlock Power', '⚡', 1, 'Unlock powerful multi-level upgrades', null],
-            ['quantumBoost2', 'Quantum Boost II', '⚡⚡', 3, 'x1.4 cosmic energy', 1.4],
+            ['quantumBoost2', 'Quantum Boost II', '⚡⚡', 3, 'x3 cosmic energy', 3],
             ['darkMatterGen', 'Dark Matter Generation', '🌑⚡', 5, 'Generate 1% DM from reset', null],
             ['unlockMilestones', 'Unlock Milestones', '🏆', 10, 'Unlock milestone system', null],
             ['quantumBoost', 'Quantum Boost', '🔮⚡', 20, 'x2 energy & DM', 2, {boostsDM:true}],
@@ -844,6 +880,28 @@
                 const pu = powerUpgrades.find(p => p.id === card.dataset.powerId);
                 if (pu) buyPowerUpgrade(pu);
             };
+            // Dust field minigame
+            const dustField = document.getElementById('dustField');
+            const MAX_SPARKLES = 10;
+            function spawnSparkle() {
+                const sparkles = dustField.querySelectorAll('.dust-sparkle:not(.pop)');
+                if (sparkles.length >= MAX_SPARKLES) return;
+                const el = document.createElement('div');
+                el.className = 'dust-sparkle';
+                el.textContent = '✨';
+                el.style.left = (5 + Math.random() * 85) + '%';
+                el.style.top = (5 + Math.random() * 85) + '%';
+                el.onclick = (e) => {
+                    e.stopPropagation();
+                    gameState.dust += 0.02;
+                    el.classList.add('pop');
+                    setTimeout(() => el.remove(), 200);
+                    updateDisplay();
+                };
+                dustField.appendChild(el);
+            }
+            setInterval(spawnSparkle, 2000);
+            spawnSparkle();
             loadGame();
             if (gameState.upgrades.awakening) {
                 document.addEventListener('click', function resumeMusic() {
