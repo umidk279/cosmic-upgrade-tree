@@ -243,8 +243,9 @@
             <div class="stat-card" style="margin-bottom:20px;"><div class="stat-label">Collections</div><div class="stat-value" id="dustCollections">0</div></div>
             <div class="buttons-row" style="margin-bottom:30px;"><button class="main-button" id="collectDustBtn">✨ Collect Dust</button></div>
             <div class="upgrades-grid" id="dustUpgrades"></div>
-            <div style="margin-top:30px;text-align:center;"><h3 style="color:#64ffda;margin-bottom:15px;">✨ Dust Field</h3><p style="color:#b0bec5;margin-bottom:15px;font-size:0.9rem;">Click sparkles to gain 0.01 dust each!</p></div>
+            <div style="margin-top:30px;text-align:center;"><h3 style="color:#64ffda;margin-bottom:15px;">✨ Dust Field</h3><p style="color:#b0bec5;margin-bottom:15px;font-size:0.9rem;">Click sparkles to gain <span id="dustFieldValue">0.02</span> dust each!</p></div>
             <div class="dust-field" id="dustField"></div>
+            <div class="upgrades-grid" id="dustFieldUpgrades" style="margin-top:20px;"></div>
         </div>
     </div>
     <audio id="bgMusic" loop preload="auto"><source src="assets/Space%20Ambient%20Music%20for%20relaxing%20or%20study%20%20New%20Planet%20(Short%20Version)%20(1).mp3" type="audio/mpeg"></audio>
@@ -882,27 +883,84 @@
             };
             // Dust field minigame
             const dustField = document.getElementById('dustField');
-            const MAX_SPARKLES = 10;
+            const dustFieldUpgrades = [
+                {id: 'df_value', name: 'Value', icon: '💎', desc: '+0.01 dust per click per level', base: 6, priceScale: 1.6, maxLevel: 10},
+                {id: 'df_spawn', name: 'Spawn Time', icon: '⏱️', desc: '/1.2 spawn time per level', base: 4, priceScale: 1.5, maxLevel: 8},
+                {id: 'df_greater', name: 'Greater', icon: '📐', desc: 'x1.2 sparkle size & +1 max sparkles per level', base: 7, priceScale: 1.8, maxLevel: 7}
+            ];
+            function getDFLevel(id) { return gameState.upgrades[id] || 0; }
+            function getDFCost(dfu) { return Math.floor(dfu.base * Math.pow(dfu.priceScale, getDFLevel(dfu.id))); }
+            function getDustFieldValue() { return 0.02 + 0.01 * getDFLevel('df_value'); }
+            function getDustSpawnInterval() { return 2000 / Math.pow(1.2, getDFLevel('df_spawn')); }
+            function getDustMaxSparkles() { return 10 + getDFLevel('df_greater'); }
+            function getDustSparkleSize() { return 1 + 0.2 * getDFLevel('df_greater'); }
+            function updateDustFieldText() {
+                const el = document.getElementById('dustFieldValue');
+                if (el) el.textContent = getDustFieldValue().toFixed(2);
+            }
+            function renderDustFieldUpgrades() {
+                const container = document.getElementById('dustFieldUpgrades');
+                container.innerHTML = dustFieldUpgrades.map(dfu => {
+                    const lvl = getDFLevel(dfu.id);
+                    const cost = getDFCost(dfu);
+                    const canAfford = gameState.dust >= cost && lvl < dfu.maxLevel;
+                    const isMaxed = lvl >= dfu.maxLevel;
+                    return `<div class="power-card ${canAfford?'affordable':''} ${isMaxed?'maxed':''}" data-df-id="${dfu.id}">
+                        <span class="upgrade-icon">${dfu.icon}</span>
+                        <div class="upgrade-title">${dfu.name}</div>
+                        <div class="power-level">Level ${lvl}/${dfu.maxLevel}</div>
+                        <div class="upgrade-cost">${isMaxed?'MAXED':`${formatNumber(cost)} Dust`}</div>
+                        <div class="upgrade-description">${dfu.desc}</div>
+                    </div>`;
+                }).join('');
+            }
+            document.getElementById('dustFieldUpgrades').onclick = (e) => {
+                const card = e.target.closest('.power-card');
+                if (!card || card.classList.contains('maxed')) return;
+                const dfu = dustFieldUpgrades.find(d => d.id === card.dataset.dfId);
+                if (!dfu) return;
+                const lvl = getDFLevel(dfu.id);
+                const cost = getDFCost(dfu);
+                if (gameState.dust < cost || lvl >= dfu.maxLevel) return;
+                gameState.dust -= cost;
+                gameState.upgrades[dfu.id] = lvl + 1;
+                showNotification(`💎 ${dfu.name} Level ${lvl + 1}!`);
+                // Restart spawn timer with new interval
+                clearInterval(spawnTimer);
+                spawnTimer = setInterval(spawnSparkle, getDustSpawnInterval());
+                updateDisplay();
+                renderDustFieldUpgrades();
+                updateDustFieldText();
+            };
             function spawnSparkle() {
                 const sparkles = dustField.querySelectorAll('.dust-sparkle:not(.pop)');
-                if (sparkles.length >= MAX_SPARKLES) return;
+                if (sparkles.length >= getDustMaxSparkles()) return;
                 const el = document.createElement('div');
                 el.className = 'dust-sparkle';
                 el.textContent = '✨';
+                const size = getDustSparkleSize();
+                el.style.fontSize = (1.5 * size) + 'rem';
                 el.style.left = (5 + Math.random() * 85) + '%';
                 el.style.top = (5 + Math.random() * 85) + '%';
                 el.onclick = (e) => {
                     e.stopPropagation();
-                    gameState.dust += 0.02;
+                    gameState.dust += getDustFieldValue();
                     el.classList.add('pop');
                     setTimeout(() => el.remove(), 200);
                     updateDisplay();
                 };
                 dustField.appendChild(el);
             }
-            setInterval(spawnSparkle, 2000);
+            let spawnTimer = setInterval(spawnSparkle, getDustSpawnInterval());
             spawnSparkle();
+            renderDustFieldUpgrades();
+            updateDustFieldText();
             loadGame();
+            // Restart spawn timer with saved upgrade levels
+            clearInterval(spawnTimer);
+            spawnTimer = setInterval(spawnSparkle, getDustSpawnInterval());
+            renderDustFieldUpgrades();
+            updateDustFieldText();
             if (gameState.upgrades.awakening) {
                 document.addEventListener('click', function resumeMusic() {
                     startCosmicMusic();
