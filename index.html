@@ -147,6 +147,18 @@
         .milestone.completed { border-color: var(--glow-secondary); background: linear-gradient(135deg, rgba(79, 211, 167, 0.1) 0%, rgba(100, 255, 218, 0.1) 100%); }
         .milestone-title { color: var(--glow-accent); font-weight: bold; margin-bottom: 5px; }
         .milestone.completed .milestone-title { color: var(--glow-secondary); }
+        .power-card {
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.08) 0%, rgba(100, 255, 218, 0.08) 100%);
+            border: 1px solid var(--glow-accent);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        .power-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(255, 107, 157, 0.2); border-color: var(--glow-accent); }
+        .power-card.affordable { border-color: var(--glow-secondary); box-shadow: 0 0 15px rgba(79, 211, 167, 0.3); }
+        .power-level { color: #ff6b9d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; }
         @media (max-width: 768px) {
             .title { font-size: 2rem; }
             .main-stats { flex-direction: column; }
@@ -173,6 +185,7 @@
             <div class="tab active" data-tab="cosmic-research">🔬 Cosmic Research</div>
             <div class="tab" data-tab="dark-matter" style="display:none;">🌑 Dark Matter</div>
             <div class="tab" data-tab="quantum" style="display:none;">🔮 Quantum Leap</div>
+            <div class="tab" data-tab="power" style="display:none;">⚡ Power</div>
             <div class="tab" data-tab="dust">✨ Dust</div>
         </div>
         <div class="tab-content active" id="cosmic-research">
@@ -187,6 +200,10 @@
             <div class="upgrades-grid" id="quantumUpgrades"></div>
             <div id="milestones" style="margin-top:30px;"></div>
         </div>
+        <div class="tab-content" id="power">
+            <div class="stat-card" style="margin-bottom:20px;"><div class="stat-label">Power Upgrades</div><div class="stat-value" style="font-size:1rem;color:#b0bec5;">Multi-level upgrades that grow with your universe</div></div>
+            <div class="upgrades-grid" id="powerUpgrades"></div>
+        </div>
         <div class="tab-content" id="dust">
             <div class="stat-card" style="margin-bottom:20px;"><div class="stat-label">Dust</div><div class="stat-value" id="dustAmount">0</div></div>
             <div class="stat-card" style="margin-bottom:20px;"><div class="stat-label">Collections</div><div class="stat-value" id="dustCollections">0</div></div>
@@ -200,7 +217,7 @@
         let gameState = {
             cosmicEnergy: 1, energyGeneration: 0, universeAge: 0, darkMatter: 0, quantumLeaps: 0, totalQuantumLeaps: 0,
             upgrades: {}, milestones: [], dust: 0, lastDustCollection: 0, dustCollections: 0, bestCosmicEnergy: 1,
-            bigBangClicks: 0, bigBangLastClick: 0, shown: {}
+            bigBangClicks: 0, bigBangLastClick: 0, shown: {}, lastResetTime: Date.now()
         };
         const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
         const cosmicRaw = [
@@ -280,7 +297,7 @@
             ['awesomeDarkMatter', 'AWESOME!', '🔥🌑', 1e25, 'Dark matter ^1.025', null, {powerBoostDM:1.025}]
         ];
         const quantumRaw = [
-            ['quantumBoost1', 'Quantum Boost I', '⚡', 1, 'x1.5 energy & DM', 1.5, {boostsDM:true}],
+            ['unlockPower', 'Unlock Power', '⚡', 1, 'Unlock powerful multi-level upgrades', null],
             ['quantumBoost2', 'Quantum Boost II', '⚡⚡', 3, 'x3 cosmic energy', 3],
             ['darkMatterGen', 'Dark Matter Generation', '🌑⚡', 5, 'Generate 1% DM from reset', null],
             ['unlockMilestones', 'Unlock Milestones', '🏆', 10, 'Unlock milestone system', null],
@@ -314,6 +331,51 @@
             ['improve', 'Improve Collection Time', '⏰', 30, 'Decrease to 50 min', null],
             ['thisCanBeGenerated', 'this can be generated?', '✨🔧', 50, 'Generate 0.001 dust/sec', null]
         ];
+        // Power upgrades - multi-level, cost cosmic energy
+        const powerUpgrades = [
+            {
+                id: 'weak', name: 'Weak', icon: '💫',
+                desc: 'x1.025 cosmic energy per level',
+                base: 50, priceScale: 100, priceExponent: 1.2, maxLevel: 999,
+                boostText: lvl => `x${formatNumber(Math.pow(1.025, lvl))} energy`
+            },
+            {
+                id: 'strong', name: 'Strong', icon: '💪',
+                desc: '+0.0025 to exponent of energy, DM & quantum per level',
+                base: 500, priceScale: 1000, priceExponent: 1.5, maxLevel: 999,
+                boostText: lvl => `+${(0.0025*lvl).toFixed(4)} exponent`
+            },
+            {
+                id: 'timeBased', name: 'Time Based', icon: '⏳',
+                desc: 'Cosmic energy boost based on time since last reset',
+                base: 1000, priceScale: 50, priceExponent: 1.1, maxLevel: 999,
+                boostText: lvl => {
+                    const sec = (Date.now() - gameState.lastResetTime) / 1000;
+                    const boost = Math.pow(sec, 0.25) + (0.1 + lvl / 10);
+                    return `x${formatNumber(boost)} energy (current)`;
+                }
+            },
+            {
+                id: 'scaled', name: 'Scaled', icon: '📐',
+                desc: 'Growing dark matter boost per level (+0.005/level to boost)',
+                base: 500, priceScale: 150, priceExponent: 1.3, maxLevel: 999,
+                boostText: lvl => {
+                    if (lvl === 0) return '+0x DM';
+                    const total = lvl * 0.01 + 0.005 * lvl * (lvl - 1) / 2;
+                    return `+${formatNumber(total)}x DM`;
+                }
+            }
+        ];
+        function getPowerCost(pu, lvl) {
+            if (lvl === 0) return pu.base;
+            return pu.base * Math.pow(pu.priceScale, (Math.pow(pu.priceExponent, lvl) - 1) / (pu.priceExponent - 1));
+        }
+        function getPowerLevel(id) {
+            return gameState.upgrades['power_' + id] || 0;
+        }
+        function setPowerLevel(id, lvl) {
+            gameState.upgrades['power_' + id] = lvl;
+        }
         const makeUpgrade = (raw, defaults) => raw.map(([id,name,icon,cost,effect,mult,opts={}]) =>
             ({...defaults, id, name, icon, cost, effect, mult, ...opts}));
         const cosmicUpgrades = makeUpgrade(cosmicRaw, upgradeDefaults.cosmic);
@@ -442,6 +504,31 @@
             if (s.upgrades.deserved2) mults.darkMatter = Math.pow(mults.darkMatter, 1.02);
             if (s.upgrades.awesomeDarkMatter) mults.darkMatter = Math.pow(mults.darkMatter, 1.025);
             if (s.upgrades.amazingQuantumLeaps) mults.quantum = Math.pow(mults.quantum, 1.015);
+            // Power upgrades
+            // Weak: x1.025 energy per level
+            const weakLvl = getPowerLevel('weak');
+            if (weakLvl > 0) mults.energy *= Math.pow(1.025, weakLvl);
+            // Strong: +0.0025 exponent to energy, DM, quantum per level
+            const strongLvl = getPowerLevel('strong');
+            if (strongLvl > 0) {
+                const exp = 1 + 0.0025 * strongLvl;
+                mults.energy = Math.pow(mults.energy, exp);
+                mults.darkMatter = Math.pow(mults.darkMatter, exp);
+                mults.quantum = Math.pow(mults.quantum, exp);
+            }
+            // Time Based: (time^0.25) + (0.1 + lvl/10) boost to energy
+            const timeLvl = getPowerLevel('timeBased');
+            if (timeLvl > 0) {
+                const sec = (Date.now() - s.lastResetTime) / 1000;
+                const boost = Math.pow(sec, 0.25) + (0.1 + timeLvl / 10);
+                mults.energy *= boost;
+            }
+            // Scaled: growing DM boost
+            const scaledLvl = getPowerLevel('scaled');
+            if (scaledLvl > 0) {
+                const total = scaledLvl * 0.01 + 0.005 * scaledLvl * (scaledLvl - 1) / 2;
+                mults.darkMatter *= (1 + total);
+            }
             if (s.universeAge >= 1000) mults.time /= Math.pow(Math.pow(s.universeAge, 0.21), 0.95) + 1;
             if (s.universeAge >= 1200) mults.time /= 1.5;
             return mults;
@@ -469,8 +556,10 @@
                 dustUpgradeIds.forEach(id => { if (s.upgrades[id]) preserved[id] = s.upgrades[id]; });
                 persistentUpgrades.forEach(id => { if (s.upgrades[id]) preserved[id] = s.upgrades[id]; });
                 Object.assign(s, {cosmicEnergy:1, energyGeneration:0, universeAge:0, darkMatter:0, quantumLeaps:0, totalQuantumLeaps:0, upgrades:preserved, milestones:[]});
+                s.lastResetTime = Date.now();
                 document.querySelector('[data-tab="dark-matter"]').style.display = 'none';
                 document.querySelector('[data-tab="quantum"]').style.display = 'none';
+                document.querySelector('[data-tab="power"]').style.display = 'none';
                 document.getElementById('stellarCollapse').style.display = 'none';
                 document.getElementById('quantumLeap').style.display = 'none';
                 showNotification('🌀 Big Bang Reset Complete!');
@@ -481,6 +570,7 @@
                 s.darkMatter += gain;
                 s.cosmicEnergy = 1; s.energyGeneration = 0; s.universeAge = 0;
                 cosmicUpgrades.forEach(u => s.upgrades[u.id] = 0);
+                s.lastResetTime = Date.now();
                 showNotification(`⭐ Stellar Collapse! +${formatNumber(gain)} Dark Matter`);
             }
             if (type === 'quantum') {
@@ -493,6 +583,7 @@
                 [...cosmicUpgrades, ...darkMatterUpgrades].forEach(u => {
                     if (!u.persistent || !s.upgrades[u.id]) s.upgrades[u.id] = 0;
                 });
+                s.lastResetTime = Date.now();
                 updateMilestones();
                 showNotification(`🔮 Quantum Leap! +${formatNumber(gain, true)} QL`);
             }
@@ -512,9 +603,24 @@
                 startCosmicMusic();
             }
             if (upgrade.id === 'unlockMilestones') updateMilestones();
+            if (upgrade.id === 'unlockPower') {
+                document.querySelector('[data-tab="power"]').style.display = 'block';
+            }
             showNotification(`✨ Purchased ${upgrade.name}!`);
             updateDisplay();
             renderAllUpgrades();
+        }
+        function buyPowerUpgrade(pu) {
+            const s = gameState;
+            const lvl = getPowerLevel(pu.id);
+            if (lvl >= pu.maxLevel) return;
+            const cost = getPowerCost(pu, lvl);
+            if (s.cosmicEnergy < cost) return;
+            s.cosmicEnergy -= cost;
+            setPowerLevel(pu.id, lvl + 1);
+            showNotification(`⚡ ${pu.name} Level ${lvl + 1}!`);
+            updateDisplay();
+            renderPowerUpgrades();
         }
         function gameLoop() {
             const s = gameState;
@@ -589,11 +695,31 @@
                 </div>`;
             }).join('');
         }
+        function renderPowerUpgrades() {
+            const s = gameState;
+            const container = document.getElementById('powerUpgrades');
+            container.innerHTML = powerUpgrades.map(pu => {
+                const lvl = getPowerLevel(pu.id);
+                const cost = getPowerCost(pu, lvl);
+                const canAfford = s.cosmicEnergy >= cost && lvl < pu.maxLevel;
+                const isMaxed = lvl >= pu.maxLevel;
+                const boost = lvl > 0 ? pu.boostText(lvl) : '';
+                return `<div class="power-card ${canAfford?'affordable':''} ${isMaxed?'maxed':''}" data-power-id="${pu.id}">
+                    <span class="upgrade-icon">${pu.icon}</span>
+                    <div class="upgrade-title">${pu.name}</div>
+                    <div class="power-level">Level ${lvl}/${pu.maxLevel}</div>
+                    <div class="upgrade-cost">${isMaxed?'MAXED':`${formatNumber(cost)} Energy`}</div>
+                    <div class="upgrade-description">${pu.desc}</div>
+                    ${boost ? `<div style="color:#4fd3a7;margin-top:8px;font-weight:bold;">${boost}</div>` : ''}
+                </div>`;
+            }).join('');
+        }
         function renderAllUpgrades() {
             renderUpgrades('cosmicUpgrades', cosmicUpgrades);
             renderUpgrades('darkMatterUpgrades', darkMatterUpgrades);
             renderUpgrades('quantumUpgrades', quantumUpgrades);
             renderUpgrades('dustUpgrades', dustUpgrades);
+            renderPowerUpgrades();
         }
         function updateMilestones() {
             if (!gameState.upgrades.unlockMilestones) return;
@@ -625,6 +751,11 @@
                 const offlineTime = Date.now() - (savedState.lastSaveTime || Date.now());
                 gameState = {...gameState, ...savedState};
                 if (gameState.lastDustCollection === 0) gameState.lastDustCollection = Date.now() - getDustTime();
+                if (!gameState.lastResetTime) gameState.lastResetTime = Date.now();
+                // Show power tab if unlocked
+                if (gameState.upgrades.unlockPower) {
+                    document.querySelector('[data-tab="power"]').style.display = 'block';
+                }
                 if (offlineTime > 5000) {
                     const offlineSec = offlineTime / 1000;
                     const mults = calculateMultipliers();
@@ -636,9 +767,9 @@
                         const potential = Math.pow(gameState.cosmicEnergy, 0.13) + 1;
                         let genRate = 0.01;
                         const mCount = gameState.milestones.filter(m=>m).length;
-                        if (mCount >= 1) genRate = 0.03;
-                        if (gameState.upgrades.ohItWasSlow) genRate = 0.07;
-                        if (mCount >= 8) genRate = 0.15;
+                        if (mCount >= 1) genRate += 0.02;
+                        if (gameState.upgrades.ohItWasSlow) genRate += 0.04;
+                        if (mCount >= 8) genRate += 0.08;
                         gameState.darkMatter += (potential * genRate * mults.darkMatter * offlineSec) / 5;
                     }
                     if (gameState.upgrades.thisCanBeGenerated) gameState.dust += 0.001 * offlineSec;
@@ -655,11 +786,9 @@
             if (cosmicMusicStarted) return;
             const bgMusic = document.getElementById('bgMusic');
             bgMusic.volume = 0.4;
-            // Wait for audio to be ready before playing
             const tryPlay = () => {
                 cosmicMusicStarted = true;
                 bgMusic.play().catch(() => {
-                    // Play was blocked, allow retry
                     cosmicMusicStarted = false;
                 });
             };
@@ -672,11 +801,8 @@
         }
         function checkMusicState() {
             const bgMusic = document.getElementById('bgMusic');
-            // If Awakening is purchased and music is not playing, try to play it
             if (gameState.upgrades.awakening && bgMusic.paused) {
-                bgMusic.play().catch(() => {
-                    // Silently fail if autoplay is blocked
-                });
+                bgMusic.play().catch(() => {});
             }
         }
         function init() {
@@ -708,8 +834,16 @@
                     if (!card || card.classList.contains('maxed')) return;
                     const upgrade = allUpgrades.find(u => u.id === card.dataset.id);
                     if (upgrade) buyUpgrade(upgrade);
+                    const powerId = card.dataset.powerId || card.closest('[data-power-id]')?.dataset.powerId;
                 };
             });
+            // Power upgrade click handler
+            document.getElementById('powerUpgrades').onclick = (e) => {
+                const card = e.target.closest('.power-card');
+                if (!card || card.classList.contains('maxed')) return;
+                const pu = powerUpgrades.find(p => p.id === card.dataset.powerId);
+                if (pu) buyPowerUpgrade(pu);
+            };
             loadGame();
             if (gameState.upgrades.awakening) {
                 document.addEventListener('click', function resumeMusic() {
