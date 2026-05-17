@@ -533,9 +533,9 @@
                 const potential = Math.pow(s.cosmicEnergy, 0.13) + 1;
                 let genRate = 0.01;
                 const mCount = s.milestones.filter(m=>m).length;
-                if (mCount >= 1) genRate = 0.03;
-                if (s.upgrades.ohItWasSlow) genRate = 0.07;
-                if (mCount >= 8) genRate = 0.15;
+                if (mCount >= 1) genRate += 0.02;
+                if (s.upgrades.ohItWasSlow) genRate += 0.04;
+                if (mCount >= 8) genRate += 0.08;
                 s.darkMatter += potential * genRate * mults.darkMatter / 10;
             }
             if (s.upgrades.thisCanBeGenerated) s.dust += 0.0001;
