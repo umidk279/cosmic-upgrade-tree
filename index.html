@@ -417,6 +417,15 @@
             from { width: 100%; }
             to { width: 0%; }
         }
+        /* Galactic event star animation */
+        .galactic-star {
+            position: fixed;
+            font-size: 2rem;
+            z-index: 9999;
+            pointer-events: none;
+            text-shadow: 0 0 15px #ffd700, 0 0 30px #ff6b9d, 0 0 45px #64ffda;
+            will-change: transform;
+        }
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
         .tab {
             background: rgba(100, 255, 218, 0.1);
@@ -830,7 +839,7 @@
               <div class="settings-info">
                 Current: <span id="currentNotation" style="color:var(--glow-primary);font-weight:bold;">Default</span>
                 <br />
-                <span style="font-size:0.8rem;opacity:0.8;">Default: K, M, B, T, QA, QI, SX, SP, OC, NO, DE, then scientific. Scientific: 1e3 from start.</span>
+                <span style="font-size:0.8rem;opacity:0.8;">Default: K, M, B, T, QA, QI, SX, SP, OC, NO, DE, then scientific. Scientific: 1.00e+3 from start.</span>
               </div>
             </div>
           </div>
@@ -1140,6 +1149,32 @@
             document.getElementById('showcaseOverlay').classList.remove('active');
             clearTimeout(showcaseTimer);
         }
+        function spawnGalacticStar() {
+            const stars = ['⭐', '🌟', '✨', '💫', '🌠'];
+            const star = document.createElement('div');
+            star.className = 'galactic-star';
+            star.textContent = stars[Math.floor(Math.random() * stars.length)];
+            // Random edge: 0=top, 1=right, 2=bottom, 3=left
+            const edge = Math.floor(Math.random() * 4);
+            let startX, startY, endX, endY;
+            const w = window.innerWidth, h = window.innerHeight;
+            if (edge === 0) { startX = Math.random() * w; startY = -50; endX = Math.random() * w; endY = h + 50; }
+            else if (edge === 1) { startX = w + 50; startY = Math.random() * h; endX = -50; endY = Math.random() * h; }
+            else if (edge === 2) { startX = Math.random() * w; startY = h + 50; endX = Math.random() * w; endY = -50; }
+            else { startX = -50; startY = Math.random() * h; endX = w + 50; endY = Math.random() * h; }
+            star.style.left = startX + 'px';
+            star.style.top = startY + 'px';
+            document.body.appendChild(star);
+            const duration = 1500 + Math.random() * 1000;
+            const rotation = (Math.random() - 0.5) * 720;
+            const anim = star.animate([
+                { transform: `translate(0, 0) rotate(0deg) scale(0.5)`, opacity: 0 },
+                { transform: `translate(${(endX-startX)*0.2}px, ${(endY-startY)*0.2}px) rotate(${rotation*0.2}deg) scale(1.2)`, opacity: 1, offset: 0.2 },
+                { transform: `translate(${(endX-startX)*0.8}px, ${(endY-startY)*0.8}px) rotate(${rotation*0.8}deg) scale(1)`, opacity: 1, offset: 0.8 },
+                { transform: `translate(${endX-startX}px, ${endY-startY}px) rotate(${rotation}deg) scale(0.5)`, opacity: 0 }
+            ], { duration, easing: 'cubic-bezier(0.4, 0, 0.6, 1)' });
+            anim.onfinish = () => star.remove();
+        }
         function showUpgradeShowcase(upgrade) {
             const s = gameState;
             const lvl = s.upgrades[upgrade.id] || 0;
@@ -1402,7 +1437,7 @@
             let eventBoost = 1;
             if (s.upgrades.galacticEvents && Math.random() < 0.15) {
                 eventBoost = 30;
-                showNotification('🌠 GALACTIC EVENT: x30 Energy!');
+                spawnGalacticStar();
             }
             const energyGain = Math.min(s.energyGeneration * mults.energy * eventBoost / 10, 1e100);
             const ageGain = Math.min(1 * mults.time / 10, 1000);
