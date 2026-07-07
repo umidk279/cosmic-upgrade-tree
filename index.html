@@ -1947,6 +1947,8 @@
         let cosmicMusicStarted = false;
         function startCosmicMusic() {
             if (cosmicMusicStarted) return;
+            // Don't start background music while in a challenge
+            if (gameState.activeChallenge) return;
             const bgMusic = document.getElementById('bgMusic');
             bgMusic.volume = gameState.soundVolume;
             const tryPlay = () => {
@@ -1963,9 +1965,16 @@
             }
         }
         function checkMusicState() {
+            // If in a challenge, ensure challenge music is playing (browser may have paused it)
+            if (gameState.activeChallenge) {
+                const challengeMusic = document.getElementById('challengeMusic');
+                if (challengeMusic.paused) {
+                    challengeMusic.play().catch(() => {});
+                }
+                return;
+            }
+            // Not in challenge — ensure background music is playing if awakening was bought
             const bgMusic = document.getElementById('bgMusic');
-            // Don't resume background music while in a challenge
-            if (gameState.activeChallenge) return;
             if (gameState.upgrades.awakening && bgMusic.paused) {
                 bgMusic.play().catch(() => {});
             }
@@ -2202,10 +2211,17 @@
             spawnTimer = setInterval(spawnSparkle, getDustSpawnInterval());
             renderDustFieldUpgrades();
             updateDustFieldText();
-            if (gameState.upgrades.awakening) {
-                document.addEventListener('click', function resumeMusic() {
-                    startCosmicMusic();
-                    document.removeEventListener('click', resumeMusic);
+            if (gameState.upgrades.awakening || gameState.activeChallenge) {
+                document.addEventListener('click', function resumeAudio() {
+                    // Play the correct audio based on challenge state
+                    if (gameState.activeChallenge) {
+                        const bgMusic = document.getElementById('bgMusic');
+                        if (!bgMusic.paused) bgMusic.pause();
+                        document.getElementById('challengeMusic').play().catch(() => {});
+                    } else {
+                        startCosmicMusic();
+                    }
+                    document.removeEventListener('click', resumeAudio);
                 }, {once: true});
             }
             renderAllUpgrades();
@@ -2216,7 +2232,9 @@
             // Resume active challenge on reload
             if (gameState.activeChallenge === 'chaotic') {
                 startChaoticMovement();
-                document.getElementById('challengeMusic').play().catch(() => {});
+                // Challenge music will be started by the click listener or checkMusicState
+                const bgMusic = document.getElementById('bgMusic');
+                if (!bgMusic.paused) bgMusic.pause();
             }
             setInterval(gameLoop, 100);
             setInterval(renderAllUpgrades, 5000);
