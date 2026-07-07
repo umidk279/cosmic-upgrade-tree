@@ -426,6 +426,31 @@
             text-shadow: 0 0 15px #ffd700, 0 0 30px #ff6b9d, 0 0 45px #64ffda;
             will-change: transform;
         }
+        /* Chaotic challenge flight paths */
+        @keyframes chaoticFly1 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(50px, -35px) rotate(8deg); }
+            50% { transform: translate(-40px, 45px) rotate(-12deg); }
+            75% { transform: translate(35px, 25px) rotate(6deg); }
+        }
+        @keyframes chaoticFly2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-45px, -40px) rotate(-10deg); }
+            50% { transform: translate(55px, 30px) rotate(14deg); }
+            75% { transform: translate(-25px, 50px) rotate(-8deg); }
+        }
+        @keyframes chaoticFly3 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(40px, 40px) rotate(12deg); }
+            66% { transform: translate(-50px, -30px) rotate(-10deg); }
+        }
+        @keyframes chaoticFly4 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(30px, -50px) rotate(-15deg); }
+            40% { transform: translate(-45px, -20px) rotate(10deg); }
+            60% { transform: translate(50px, 35px) rotate(-8deg); }
+            80% { transform: translate(-35px, 45px) rotate(12deg); }
+        }
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
         .tab {
             background: rgba(100, 255, 218, 0.1);
@@ -941,7 +966,7 @@
             cosmicEnergy: 1, energyGeneration: 0, universeAge: 0, darkMatter: 0, quantumLeaps: 0, totalQuantumLeaps: 0,
             upgrades: {}, milestones: [], dust: 0, sparkles: 0, totalSparklesConverted: 0, lastDustCollection: 0, dustCollections: 0, bestCosmicEnergy: 1,
             bigBangClicks: 0, bigBangLastClick: 0, shown: {}, lastResetTime: Date.now(), notationMode: 'default', lastRespec: 0,
-            activeChallenge: null, completedChallenges: {}
+            activeChallenge: null, completedChallenges: {}, challengesUnlocked: false
         };
         const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
         const cosmicRaw = [
@@ -984,7 +1009,7 @@
             ['theyAllAreAmazing', 'they all are amazing', '🌟💫', 8e52, 'x2 cosmic energy', 2],
             ['finallyWorthIt', 'finally worth it', '💯', 1e54, 'x10 cosmic energy', 10],
             ['notWorthIt', 'not worth it', '🌑💯', 1e57, 'x10 dark matter', 10, {boostsDM:true}],
-            ['challenging', 'challenging', '', 2e65, 'Unlock challenges tab', null, {unlockChallenges:true}]
+            ['challenging', 'challenging', '', 2e65, 'Unlock the Chaotic challenge', null, {unlockChallenges:true}]
         ];
         const darkMatterRaw = [
             ['darkEnergyInfusion', 'Dark Energy Infusion', '🌑', 3, '1.5x cosmic energy', 1.5],
@@ -1321,6 +1346,9 @@
         }
         function enterChallenge(id) {
             if (gameState.activeChallenge) return showNotification('Already in a challenge!');
+            if (id === 'chaotic' && !gameState.challengesUnlocked) {
+                return showNotification('Purchase the "challenging" upgrade first!');
+            }
             gameState.activeChallenge = id;
             // Force quantum leap reset
             performReset('quantum');
@@ -1333,6 +1361,7 @@
             const id = gameState.activeChallenge;
             if (!id) return;
             const ch = challenges.find(c => c.id === id);
+            gameState.activeChallenge = null;
             if (id === 'chaotic') stopChaoticMovement();
             const music = document.getElementById('challengeMusic');
             music.pause();
@@ -1343,7 +1372,6 @@
             } else {
                 showNotification(`Exited ${ch.name} challenge.`);
             }
-            gameState.activeChallenge = null;
             renderChallenges();
             updateDisplay();
         }
@@ -1354,35 +1382,12 @@
                 exitChallenge(true);
             }
         }
-        // Chaotic challenge: upgrades move randomly
-        let chaoticInterval = null;
+        // Chaotic challenge: upgrades fly around via CSS animations (applied in renderUpgrades)
         function startChaoticMovement() {
-            stopChaoticMovement();
-            chaoticInterval = setInterval(() => {
-                const cosmicGrid = document.getElementById('cosmicUpgrades');
-                const dmGrid = document.getElementById('darkMatterUpgrades');
-                [cosmicGrid, dmGrid].forEach(grid => {
-                    if (!grid) return;
-                    grid.querySelectorAll('.upgrade-card').forEach(card => {
-                        const dx = (Math.random() - 0.5) * 80;
-                        const dy = (Math.random() - 0.5) * 80;
-                        const rot = (Math.random() - 0.5) * 20;
-                        card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
-                        card.style.transition = 'transform 0.8s ease';
-                    });
-                });
-            }, 1500);
+            renderAllUpgrades();
         }
         function stopChaoticMovement() {
-            if (chaoticInterval) { clearInterval(chaoticInterval); chaoticInterval = null; }
-            const cosmicGrid = document.getElementById('cosmicUpgrades');
-            const dmGrid = document.getElementById('darkMatterUpgrades');
-            [cosmicGrid, dmGrid].forEach(grid => {
-                if (!grid) return;
-                grid.querySelectorAll('.upgrade-card').forEach(card => {
-                    card.style.transform = '';
-                });
-            });
+            renderAllUpgrades();
         }
         function showNotification(msg) {
             const notif = document.getElementById('notification');
@@ -1539,11 +1544,12 @@
                 dustUpgradeIds.forEach(id => { if (s.upgrades[id]) preserved[id] = s.upgrades[id]; });
                 ['df_value','df_spawn','df_greater','df_dustValueTime'].forEach(id => { if (s.upgrades[id]) preserved[id] = s.upgrades[id]; });
                 persistentUpgrades.forEach(id => { if (s.upgrades[id]) preserved[id] = s.upgrades[id]; });
-                Object.assign(s, {cosmicEnergy:1, energyGeneration:0, universeAge:0, darkMatter:0, quantumLeaps:0, totalQuantumLeaps:0, upgrades:preserved, milestones:[]});
+                Object.assign(s, {cosmicEnergy:1, energyGeneration:0, universeAge:0, darkMatter:0, quantumLeaps:0, totalQuantumLeaps:0, upgrades:preserved, milestones:[], challengesUnlocked:false, activeChallenge:null, completedChallenges:{}});
                 s.lastResetTime = Date.now();
                 document.querySelector('[data-tab="dark-matter"]').style.display = 'none';
                 document.querySelector('[data-tab="quantum"]').style.display = 'none';
                 document.querySelector('[data-tab="power"]').style.display = 'none';
+                document.querySelector('[data-tab="challenges"]').style.display = 'none';
                 document.getElementById('stellarCollapse').style.display = 'none';
                 document.getElementById('quantumLeap').style.display = 'none';
                 showNotification('🗑️ Data Reset Complete!');
@@ -1595,7 +1601,9 @@
                 document.querySelector('[data-tab="power"]').style.display = 'block';
             }
             if (upgrade.id === 'challenging') {
+                gameState.challengesUnlocked = true;
                 document.querySelector('[data-tab="challenges"]').style.display = 'block';
+                showNotification('🏆 The Chaotic challenge is now permanently unlocked!');
             }
             showNotification(`✨ Purchased ${upgrade.name}!`);
             updateDisplay();
@@ -1683,6 +1691,7 @@
             const s = gameState;
             const container = document.getElementById(containerId);
             const currencyMap = {cosmicEnergy: s.cosmicEnergy, darkMatter: s.darkMatter, quantumLeaps: s.quantumLeaps, dust: s.dust};
+            const isChaotic = s.activeChallenge === 'chaotic' && (containerId === 'cosmicUpgrades' || containerId === 'darkMatterUpgrades');
             const visibleUpgrades = upgrades.filter((u, i) => i === 0 || (s.upgrades[upgrades[i-1].id] || 0) > 0);
             container.innerHTML = visibleUpgrades.map(u => {
                 const lvl = s.upgrades[u.id] || 0;
@@ -1693,7 +1702,14 @@
                 if (u.showBoost && lvl > 0 && typeof u.mult === 'function') {
                     boostText = ` <span style="color:#4fd3a7">(Current: x${formatNumber(u.mult(s))})</span>`;
                 }
-                return `<div class="upgrade-card ${canAfford?'affordable':''} ${isMaxed?'maxed':''}" data-id="${u.id}">
+                let chaoticStyle = '';
+                if (isChaotic) {
+                    const pattern = Math.floor(Math.random() * 4) + 1;
+                    const duration = (2 + Math.random() * 3).toFixed(2);
+                    const delay = (Math.random() * duration).toFixed(2);
+                    chaoticStyle = ` style="animation: chaoticFly${pattern} ${duration}s ease-in-out infinite; animation-delay: -${delay}s; transition: none;"`;
+                }
+                return `<div class="upgrade-card ${canAfford?'affordable':''} ${isMaxed?'maxed':''}" data-id="${u.id}"${chaoticStyle}>
                     <button class="showcase-btn" data-sc-type="upgrade" data-sc-id="${u.id}">🔍 Showcase</button>
                     <span class="upgrade-icon">${u.icon}</span>
                     <div class="upgrade-title">${u.name}${lvl>0?'✓':''}</div>
@@ -1765,7 +1781,8 @@
                 if (gameState.upgrades.unlockPower) {
                     document.querySelector('[data-tab="power"]').style.display = 'block';
                 }
-                if (gameState.upgrades.challenging) {
+                // Show challenges tab if permanently unlocked
+                if (gameState.challengesUnlocked) {
                     document.querySelector('[data-tab="challenges"]').style.display = 'block';
                 }
                 if (offlineTime > 5000) {
