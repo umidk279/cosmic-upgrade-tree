@@ -621,6 +621,32 @@
             animation: sparklePop 0.2s ease forwards;
             pointer-events: none;
         }
+        .respec-button {
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.15) 0%, rgba(255, 215, 0, 0.15) 100%);
+            border: 1px solid var(--glow-accent);
+            color: var(--glow-accent);
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+        .respec-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+        .respec-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         @media (max-width: 768px) {
             .title { font-size: 2rem; }
             .main-stats { flex-direction: column; }
@@ -692,6 +718,10 @@
         <div class="tab" data-tab="dust">
           <span class="tab-emoji">✨</span>
           <span class="tab-text">Dust</span>
+        </div>
+        <div class="tab" data-tab="challenges" style="display:none;">
+          <span class="tab-emoji">🏆</span>
+          <span class="tab-text">Challenges</span>
         </div>
         <div class="tab" data-tab="settings">
           <span class="tab-emoji">⚙️</span>
@@ -782,6 +812,9 @@
 </span>
             )
           </button>
+          <button class="respec-button" id="respecBtn" title="Reset dust upgrades, dust field upgrades, and sparkle CS multi — refunds everything spent. 1 minute cooldown.">
+            🔄 Respec
+          </button>
         </div>
         <div class="upgrades-grid" id="dustUpgrades">
         </div>
@@ -799,6 +832,18 @@
         <div class="dust-field" id="dustField">
         </div>
         <div class="upgrades-grid" id="dustFieldUpgrades" style="margin-top:20px;">
+        </div>
+      </div>
+      <div class="tab-content" id="challenges">
+        <div class="stat-card" style="margin-bottom:20px;">
+          <div class="stat-label">
+            Challenges
+          </div>
+          <div class="stat-value" style="font-size:1rem;color:#b0bec5;">
+            Test your skills under special restrictions for powerful permanent rewards
+          </div>
+        </div>
+        <div class="upgrades-grid" id="challengesGrid">
         </div>
       </div>
       <div class="tab-content" id="settings">
@@ -873,6 +918,9 @@
     <audio id="stellarSFX" preload="auto">
       <source src="assets/DarkMatterReset.mp3" type="audio/mpeg" />
     </audio>
+    <audio id="challengeMusic" loop="" preload="auto">
+      <source src="assets/fightfightfightc.mp3" type="audio/mpeg" />
+    </audio>
     <div class="showcase-overlay" id="showcaseOverlay">
       <div class="showcase-modal" id="showcaseModal">
         <button class="showcase-close" id="showcaseClose" title="Close (Esc)">
@@ -892,7 +940,8 @@
       let gameState = {
             cosmicEnergy: 1, energyGeneration: 0, universeAge: 0, darkMatter: 0, quantumLeaps: 0, totalQuantumLeaps: 0,
             upgrades: {}, milestones: [], dust: 0, sparkles: 0, totalSparklesConverted: 0, lastDustCollection: 0, dustCollections: 0, bestCosmicEnergy: 1,
-            bigBangClicks: 0, bigBangLastClick: 0, shown: {}, lastResetTime: Date.now(), notationMode: 'default'
+            bigBangClicks: 0, bigBangLastClick: 0, shown: {}, lastResetTime: Date.now(), notationMode: 'default', lastRespec: 0,
+            activeChallenge: null, completedChallenges: {}
         };
         const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
         const cosmicRaw = [
@@ -960,7 +1009,7 @@
             ['deserved2', 'Deserved.2', '👑²', 3e11, 'DM multiplier ^1.02', null, {powerBoostDM:1.02}],
             ['simple', 'Simple', '⚡', 1e12, 'x2 cosmic energy', 2],
             ['bruhTooUnoriginal', 'Bruh Too Unoriginal', '🔗🌑', 15e12, 'x5 cosmic energy', 5],
-            ['justGetIt', 'Just Get it', '💥', 69e12, 'x9 cosmic energy', 9],
+            ['justGetIt', 'Just Get It', '💥', 69e12, 'x9 cosmic energy', 9],
             ['alr', 'alr', '👌', 2e15, 'x4 cosmic energy', 4],
             ['pushingUpToAllInOne', 'pushing up to all in one', '⬆️', 1e16, 'x3 energy before 1e34', s => s.cosmicEnergy<1e34?3:1],
             ['leapTechnology', 'leap technology', '🚀🔮', 1e17, 'x1.5 quantum leaps', 1.5, {boostsQL:true}],
@@ -997,13 +1046,14 @@
             ['amazingQuantumLeaps', 'AMAZING!', '🚀🔮', 1e8, 'Quantum leaps ^1.015', null, {powerBoostQL:1.015}]
         ];
         const dustRaw = [
-            ['boost1', 'Boost I', '⚡', 8, 'x1.2 cosmic energy', 1.2],
+            ['boost1', 'Boost I', '⚡', 8, 'x1.15 cosmic energy', 1.15],
             ['boost2', 'Boost II', '⚡⚡', 10, 'x1.15 cosmic energy', 1.15],
             ['boost11', 'Boost I.I', '🌑⚡', 12, 'x1.3 dark matter', 1.3, {boostsDM:true}],
             ['boost3', 'Boost III', '⚡⚡⚡', 20, 'x1.15 cosmic energy', 1.15],
             ['greatboost1', 'Great Boost I', '🔮⚡', 25, 'x1.3 quantum leaps', 1.3, {boostsQL:true}],
             ['improve', 'Improve Collection Time', '⏰', 30, 'Decrease to 50 min', null],
-            ['thisCanBeGenerated', 'this can be generated?', '✨🔧', 50, 'Generate 0.001 dust/sec', null]
+            ['thisCanBeGenerated', 'this can be generated?', '✨🔧', 50, 'Generate 0.001 dust/sec', null],
+            ['challenging', 'challenging', '', 2e65, 'Unlock challenges tab', null, {unlockChallenges:true}]
         ];
         // Power upgrades - multi-level, cost cosmic energy
         const powerUpgrades = [
@@ -1042,7 +1092,12 @@
         ];
         function getPowerCost(pu, lvl) {
             if (lvl === 0) return pu.base;
-            return pu.base * Math.pow(pu.priceScale, (Math.pow(pu.priceExponent, lvl) - 1) / (pu.priceExponent - 1));
+            let cost = pu.base * Math.pow(pu.priceScale, (Math.pow(pu.priceExponent, lvl) - 1) / (pu.priceExponent - 1));
+            // Chaotic challenge reward: ^0.75 power upgrade prices
+            if (gameState.completedChallenges.chaotic) {
+                cost = Math.pow(cost, 0.75);
+            }
+            return cost;
         }
         function getPowerLevel(id) {
             return gameState.upgrades['power_' + id] || 0;
@@ -1208,6 +1263,127 @@
                 statusText: `Level ${lvl} / ${pu.maxLevel}`
             });
         }
+        const challenges = [
+            {
+                id: 'chaotic',
+                name: 'Chaotic',
+                desc: 'Upgrades in Cosmic Research and Dark Matter move randomly on screen. Buy ALL of them to complete the challenge.',
+                icon: '🌀',
+                req: () => {
+                    const s = gameState;
+                    const cosmicAll = cosmicUpgrades.every(u => (s.upgrades[u.id] || 0) > 0);
+                    const dmAll = darkMatterUpgrades.every(u => (s.upgrades[u.id] || 0) > 0);
+                    return cosmicAll && dmAll;
+                },
+                rewardText: '^0.75 power upgrade prices after calculation, Time Based power upgrade effect ^1.5'
+            }
+        ];
+        function isChallengeActive(id) { return gameState.activeChallenge === id; }
+        function isChallengeCompleted(id) { return !!gameState.completedChallenges[id]; }
+        function renderChallenges() {
+            const container = document.getElementById('challengesGrid');
+            if (!container) return;
+            container.innerHTML = challenges.map(ch => {
+                const active = isChallengeActive(ch.id);
+                const completed = isChallengeCompleted(ch.id);
+                let stateClass = '';
+                let stateLabel = '';
+                let actionBtn = '';
+                if (active) {
+                    stateClass = 'affordable';
+                    stateLabel = 'IN PROGRESS';
+                    actionBtn = `<button class="main-button" id="exitChallenge_${ch.id}" style="background:linear-gradient(135deg,#ff6b9d,#ff4757);margin-top:10px;">Exit Challenge</button>`;
+                } else if (completed) {
+                    stateClass = 'maxed';
+                    stateLabel = '✓ COMPLETED';
+                    actionBtn = `<button class="main-button" id="enterChallenge_${ch.id}" style="margin-top:10px;">Replay Challenge</button>`;
+                } else {
+                    stateLabel = 'NOT COMPLETED';
+                    actionBtn = `<button class="main-button" id="enterChallenge_${ch.id}" style="margin-top:10px;">Enter Challenge</button>`;
+                }
+                return `<div class="upgrade-card ${stateClass}" style="cursor:default;">
+                    <span class="upgrade-icon">${ch.icon}</span>
+                    <div class="upgrade-title">${ch.name}</div>
+                    <div class="upgrade-cost">${stateLabel}</div>
+                    <div class="upgrade-description">${ch.desc}</div>
+                    <div style="margin-top:10px;color:var(--glow-secondary);font-size:0.85rem;font-weight:bold;">
+                        🎁 Reward: ${ch.rewardText}
+                    </div>
+                    ${actionBtn}
+                </div>`;
+            }).join('');
+            challenges.forEach(ch => {
+                const enterBtn = document.getElementById('enterChallenge_' + ch.id);
+                if (enterBtn) enterBtn.onclick = () => enterChallenge(ch.id);
+                const exitBtn = document.getElementById('exitChallenge_' + ch.id);
+                if (exitBtn) exitBtn.onclick = () => exitChallenge(false);
+            });
+        }
+        function enterChallenge(id) {
+            if (gameState.activeChallenge) return showNotification('Already in a challenge!');
+            gameState.activeChallenge = id;
+            // Force quantum leap reset
+            performReset('quantum');
+            document.getElementById('challengeMusic').play().catch(() => {});
+            showNotification('🏆 Challenge entered! Good luck.');
+            renderChallenges();
+            if (id === 'chaotic') startChaoticMovement();
+        }
+        function exitChallenge(completed) {
+            const id = gameState.activeChallenge;
+            if (!id) return;
+            const ch = challenges.find(c => c.id === id);
+            if (id === 'chaotic') stopChaoticMovement();
+            const music = document.getElementById('challengeMusic');
+            music.pause();
+            music.currentTime = 0;
+            if (completed) {
+                gameState.completedChallenges[id] = true;
+                showNotification(`🏆 ${ch.name} Challenge COMPLETED! Reward unlocked.`);
+            } else {
+                showNotification(`Exited ${ch.name} challenge.`);
+            }
+            gameState.activeChallenge = null;
+            renderChallenges();
+            updateDisplay();
+        }
+        function checkChallengeCompletion() {
+            if (!gameState.activeChallenge) return;
+            const ch = challenges.find(c => c.id === gameState.activeChallenge);
+            if (ch && ch.req()) {
+                exitChallenge(true);
+            }
+        }
+        // Chaotic challenge: upgrades move randomly
+        let chaoticInterval = null;
+        function startChaoticMovement() {
+            stopChaoticMovement();
+            chaoticInterval = setInterval(() => {
+                const cosmicGrid = document.getElementById('cosmicUpgrades');
+                const dmGrid = document.getElementById('darkMatterUpgrades');
+                [cosmicGrid, dmGrid].forEach(grid => {
+                    if (!grid) return;
+                    grid.querySelectorAll('.upgrade-card').forEach(card => {
+                        const dx = (Math.random() - 0.5) * 80;
+                        const dy = (Math.random() - 0.5) * 80;
+                        const rot = (Math.random() - 0.5) * 20;
+                        card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+                        card.style.transition = 'transform 0.8s ease';
+                    });
+                });
+            }, 1500);
+        }
+        function stopChaoticMovement() {
+            if (chaoticInterval) { clearInterval(chaoticInterval); chaoticInterval = null; }
+            const cosmicGrid = document.getElementById('cosmicUpgrades');
+            const dmGrid = document.getElementById('darkMatterUpgrades');
+            [cosmicGrid, dmGrid].forEach(grid => {
+                if (!grid) return;
+                grid.querySelectorAll('.upgrade-card').forEach(card => {
+                    card.style.transform = '';
+                });
+            });
+        }
         function showNotification(msg) {
             const notif = document.getElementById('notification');
             notif.textContent = msg;
@@ -1319,7 +1495,11 @@
             const timeLvl = getPowerLevel('timeBased');
             if (timeLvl > 0) {
                 const sec = (Date.now() - s.lastResetTime) / 1000;
-                const boost = Math.pow(sec, 0.25) + (0.1 + timeLvl / 10);
+                let boost = Math.pow(sec, 0.25) + (0.1 + timeLvl / 10);
+                // Chaotic challenge reward: Time Based effect ^1.5
+                if (s.completedChallenges.chaotic) {
+                    boost = Math.pow(boost, 1.5);
+                }
                 mults.energy *= boost;
             }
             // Scaled: growing DM boost
@@ -1414,6 +1594,9 @@
             if (upgrade.id === 'unlockPower') {
                 document.querySelector('[data-tab="power"]').style.display = 'block';
             }
+            if (upgrade.id === 'challenging') {
+                document.querySelector('[data-tab="challenges"]').style.display = 'block';
+            }
             showNotification(`✨ Purchased ${upgrade.name}!`);
             updateDisplay();
             renderAllUpgrades();
@@ -1454,6 +1637,7 @@
             }
             if (s.upgrades.thisCanBeGenerated) s.dust += 0.0001;
             checkNotifications();
+            checkChallengeCompletion();
             updateDisplay();
         }
         function updateDisplay() {
@@ -1576,9 +1760,13 @@
                 gameState = {...gameState, ...savedState};
                 if (gameState.lastDustCollection === 0) gameState.lastDustCollection = Date.now() - getDustTime();
                 if (!gameState.lastResetTime) gameState.lastResetTime = Date.now();
+                if (!gameState.lastRespec) gameState.lastRespec = 0;
                 // Show power tab if unlocked
                 if (gameState.upgrades.unlockPower) {
                     document.querySelector('[data-tab="power"]').style.display = 'block';
+                }
+                if (gameState.upgrades.challenging) {
+                    document.querySelector('[data-tab="challenges"]').style.display = 'block';
                 }
                 if (offlineTime > 5000) {
                     const offlineSec = offlineTime / 1000;
@@ -1604,6 +1792,8 @@
                 renderAllUpgrades();
                 updateMilestones();
                 updateNotationButtons();
+                updateRespecButton();
+                renderChallenges();
             } catch(e) {}
         }
         let cosmicMusicStarted = false;
@@ -1804,6 +1994,56 @@
                 showNotification(`🔥 Converted ${amount} Sparkles to Multi! (x${formatNumber(multi)} energy)`);
                 updateDisplay();
             };
+            function canRespec() {
+                return Date.now() - gameState.lastRespec >= 60000;
+            }
+            function updateRespecButton() {
+                const btn = document.getElementById('respecBtn');
+                if (canRespec()) {
+                    btn.disabled = false;
+                    btn.textContent = '🔄 Respec';
+                } else {
+                    const remaining = Math.ceil((60000 - (Date.now() - gameState.lastRespec)) / 1000);
+                    btn.disabled = true;
+                    btn.textContent = `🔄 Respec (${remaining}s)`;
+                }
+            }
+            function performRespec() {
+                if (!canRespec()) return showNotification('Respec on cooldown!');
+                const s = gameState;
+                let refundedSparkles = 0;
+                let refundedDust = 0;
+                // 1. Refund dust upgrades (cost dust)
+                dustUpgrades.forEach(u => {
+                    const lvl = s.upgrades[u.id] || 0;
+                    if (lvl > 0) {
+                        refundedDust += u.cost * lvl;
+                        s.upgrades[u.id] = 0;
+                    }
+                });
+                // 2. Refund dust field upgrades (cost sparkles, scale with level)
+                dustFieldUpgrades.forEach(dfu => {
+                    const lvl = s.upgrades[dfu.id] || 0;
+                    for (let i = 0; i < lvl; i++) {
+                        refundedSparkles += Math.floor(dfu.base * Math.pow(dfu.priceScale, i));
+                    }
+                    s.upgrades[dfu.id] = 0;
+                });
+                // 3. Refund sparkles converted to CS multi
+                refundedSparkles += s.totalSparklesConverted;
+                s.totalSparklesConverted = 0;
+                // Apply refunds
+                s.sparkles += refundedSparkles;
+                s.dust += refundedDust;
+                s.lastRespec = Date.now();
+                showNotification(`🔄 Respec complete! +${formatNumber(refundedSparkles)} Sparkles, +${formatNumber(refundedDust)} Dust`);
+                updateDisplay();
+                renderAllUpgrades();
+                renderDustFieldUpgrades();
+                updateDustFieldText();
+                updateRespecButton();
+            }
+            document.getElementById('respecBtn').onclick = performRespec;
             loadGame();
             // Restart spawn timer with saved upgrade levels
             clearInterval(spawnTimer);
@@ -1820,10 +2060,18 @@
             updateDisplay();
             updateMilestones();
             updateNotationButtons();
+            renderChallenges();
+            // Resume active challenge on reload
+            if (gameState.activeChallenge === 'chaotic') {
+                startChaoticMovement();
+                document.getElementById('challengeMusic').play().catch(() => {});
+            }
             setInterval(gameLoop, 100);
             setInterval(renderAllUpgrades, 5000);
             setInterval(saveGame, 10000);
             setInterval(checkMusicState, 5000);
+            setInterval(updateRespecButton, 1000);
+            setInterval(renderChallenges, 2000);
         }
         window.onload = init;
     </script>
