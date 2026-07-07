@@ -194,6 +194,58 @@
             border-left: 3px solid var(--glow-accent);
             border-radius: 5px;
         }
+        .volume-control {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(100, 255, 218, 0.15);
+        }
+        .volume-slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(100, 255, 218, 0.15);
+            border-radius: 5px;
+            outline: none;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--glow-primary), var(--glow-secondary));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+            transition: transform 0.2s ease;
+        }
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .volume-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--glow-primary), var(--glow-secondary));
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+        .volume-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--glow-secondary);
+            font-size: 0.9rem;
+        }
+        .volume-value {
+            color: var(--glow-primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 0 0 10px var(--glow-primary);
+        }
         /* Reset buttons (Stellar Collapse, Quantum Leap) */
         .reset-button {
             background: linear-gradient(135deg, rgba(100, 255, 218, 0.05) 0%, rgba(79, 211, 167, 0.05) 100%);
@@ -953,6 +1005,16 @@
                 <br />
                 <span style="font-size:0.8rem;opacity:0.8;">Default: K, M, B, T, QA, QI, SX, SP, OC, NO, DE, then scientific. Scientific: 1.00e+3 from start.</span>
               </div>
+              <div class="volume-control">
+                <div class="settings-panel-title" style="font-size:1rem;margin-bottom:5px;">🔊 Sound Volume</div>
+                <div class="settings-panel-subtitle">Controls all audio (music, SFX, challenge music)</div>
+                <input type="range" min="0" max="100" value="40" class="volume-slider" id="soundVolumeSlider" />
+                <div class="volume-display">
+                    <span>Mute</span>
+                    <span class="volume-value" id="soundVolumeValue">40%</span>
+                    <span>Max</span>
+                </div>
+              </div>
             </div>
           </div>
           <div class="settings-panel settings-panel-danger">
@@ -966,7 +1028,7 @@
             <div class="settings-panel-body">
               <div class="settings-warning-text">
                 Resets ALL progress including energy, dark matter, quantum leaps, dust, upgrades, and milestones.
-                Persistent dust upgrades are preserved. Requires 5 rapid clicks to confirm.
+                Persistent dust upgrades are preserved. Challenges are reset. Requires 5 rapid clicks to confirm.
               </div>
               <button class="main-button" id="dataReset" style="background:linear-gradient(135deg,#ff6b9d,#ff4757);width:100%;">
                 🗑️ Data Reset
@@ -986,7 +1048,7 @@
       <source src="assets/DarkMatterReset.mp3" type="audio/mpeg" />
     </audio>
     <audio id="challengeMusic" loop="" preload="auto">
-      <source src="assets/Fight Fight Fight C [5JwAdpGMsWQ].mp3" type="audio/mpeg" />
+      <source src="assets/fightfightfightc.mp3" type="audio/mpeg" />
     </audio>
     <div class="showcase-overlay" id="showcaseOverlay">
       <div class="showcase-modal" id="showcaseModal">
@@ -1008,7 +1070,7 @@
             cosmicEnergy: 1, energyGeneration: 0, universeAge: 0, darkMatter: 0, quantumLeaps: 0, totalQuantumLeaps: 0,
             upgrades: {}, milestones: [], dust: 0, sparkles: 0, totalSparklesConverted: 0, lastDustCollection: 0, dustCollections: 0, bestCosmicEnergy: 1,
             bigBangClicks: 0, bigBangLastClick: 0, shown: {}, lastResetTime: Date.now(), notationMode: 'default', lastRespec: 0,
-            activeChallenge: null, completedChallenges: {}, challengesUnlocked: false
+            activeChallenge: null, completedChallenges: {}, challengesUnlocked: false, soundVolume: 0.4
         };
         const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
         const cosmicRaw = [
@@ -1226,6 +1288,21 @@
             renderAllUpgrades();
             updateMilestones();
             showNotification(`Notation switched to ${mode === 'scientific' ? 'Scientific' : 'Default'}`);
+        }
+        function applySoundVolume() {
+            const vol = gameState.soundVolume;
+            ['bgMusic', 'quantumSFX', 'stellarSFX', 'challengeMusic'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.volume = vol;
+            });
+        }
+        function setSoundVolume(value) {
+            gameState.soundVolume = value / 100;
+            applySoundVolume();
+            const valEl = document.getElementById('soundVolumeValue');
+            if (valEl) valEl.textContent = value + '%';
+            const slider = document.getElementById('soundVolumeSlider');
+            if (slider) slider.value = value;
         }
         function updateNotationButtons() {
             const def = document.getElementById('notationDefault');
@@ -1828,6 +1905,9 @@
                 if (gameState.challengesUnlocked || gameState.activeChallenge) {
                     document.querySelector('[data-tab="challenges"]').style.display = 'block';
                 }
+                // Apply saved sound volume
+                applySoundVolume();
+                setSoundVolume(Math.round(gameState.soundVolume * 100));
                 if (offlineTime > 5000) {
                     const offlineSec = offlineTime / 1000;
                     const mults = calculateMultipliers();
@@ -1860,7 +1940,7 @@
         function startCosmicMusic() {
             if (cosmicMusicStarted) return;
             const bgMusic = document.getElementById('bgMusic');
-            bgMusic.volume = 0.4;
+            bgMusic.volume = gameState.soundVolume;
             const tryPlay = () => {
                 cosmicMusicStarted = true;
                 bgMusic.play().catch(() => {
@@ -1895,6 +1975,7 @@
             document.getElementById('stellarCollapse').onclick = () => performReset('stellar');
             document.getElementById('notationDefault').onclick = () => setNotation('default');
             document.getElementById('notationScientific').onclick = () => setNotation('scientific');
+            document.getElementById('soundVolumeSlider').oninput = (e) => setSoundVolume(parseInt(e.target.value));
             document.getElementById('quantumLeap').onclick = () => performReset('quantum');
             document.getElementById('collectDustBtn').onclick = collectDust;
             function showDustFieldShowcase(dfu) {
