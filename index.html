@@ -1053,7 +1053,7 @@
             ['greatboost1', 'Great Boost I', '🔮⚡', 25, 'x1.3 quantum leaps', 1.3, {boostsQL:true}],
             ['improve', 'Improve Collection Time', '⏰', 30, 'Decrease to 50 min', null],
             ['thisCanBeGenerated', 'this can be generated?', '✨🔧', 50, 'Generate 0.001 dust/sec', null],
-            ['challenging', 'challenging', '', 2e65, 'Unlock challenges tab', null, {unlockChallenges:true}]
+            ['challenging', 'challenging', '', 2e65, 'Unlock challenges tab', null, {unlockChallenges:true, costType: 'cosmicEnergy'}]
         ];
         // Power upgrades - multi-level, cost cosmic energy
         const powerUpgrades = [
@@ -2013,8 +2013,9 @@
                 const s = gameState;
                 let refundedSparkles = 0;
                 let refundedDust = 0;
-                // 1. Refund dust upgrades (cost dust)
+                // 1. Refund dust upgrades (cost dust only — skip cosmic-energy-cost ones like 'challenging')
                 dustUpgrades.forEach(u => {
+                    if (u.costType !== 'dust') return;
                     const lvl = s.upgrades[u.id] || 0;
                     if (lvl > 0) {
                         refundedDust += u.cost * lvl;
