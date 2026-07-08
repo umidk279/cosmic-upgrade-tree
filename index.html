@@ -1226,6 +1226,10 @@
             if (gameState.completedChallenges.chaotic) {
                 cost = Math.pow(cost, 0.75);
             }
+            // Calmed challenge reward: weak power upgrade cost ^0.5
+            if (gameState.completedChallenges.calmed && pu.id === 'weak') {
+                cost = Math.pow(cost, 0.5);
+            }
             return cost;
         }
         function getPowerLevel(id) {
@@ -1420,6 +1424,14 @@
                     return cosmicAll && dmAll;
                 },
                 rewardText: '^0.75 power upgrade prices after calculation, Time Based power upgrade effect ^1.5'
+            },
+            {
+                id: 'calmed',
+                name: 'Calmed',
+                desc: 'Cosmic energy is heavily weakened (^0.3). Perform a Quantum Leap reset to complete the challenge.',
+                icon: '🌊',
+                req: () => false, // completed when player performs quantum leap while in challenge
+                rewardText: 'Weak power upgrade cost ^0.5 after calculating, x2 cosmic energy'
             }
         ];
         function isChallengeActive(id) { return gameState.activeChallenge === id; }
@@ -1606,6 +1618,14 @@
                 const ageBoost = Math.pow(s.cosmicEnergy*s.darkMatter*Math.max(s.quantumLeaps,1), 0.001)+1;
                 mults.time *= ageBoost;
             }
+            // Calmed challenge debuff: cosmic energy ^0.3
+            if (s.activeChallenge === 'calmed') {
+                mults.energy = Math.pow(mults.energy, 0.3);
+            }
+            // Calmed challenge reward: x2 cosmic energy
+            if (s.completedChallenges.calmed) {
+                mults.energy *= 2;
+            }
             if (s.upgrades.deserved) mults.energy = Math.pow(mults.energy, 1.03);
             if (s.upgrades.NICE) mults.energy = Math.pow(mults.energy, 1.04);
             if (s.upgrades.deserved2) mults.darkMatter = Math.pow(mults.darkMatter, 1.02);
@@ -1642,7 +1662,7 @@
             }
             // Sparkles converted multiplier
             if (s.totalSparklesConverted >= 1) {
-                mults.energy *= s.totalSparklesConverted / 100 + 1;
+                mults.energy *= Math.pow(s.totalSparklesConverted / 100 + 1, 0.85);
             }
             if (s.universeAge >= 1000) mults.time /= Math.pow(Math.pow(s.universeAge, 0.21), 0.95) + 1;
             if (s.universeAge >= 1200) mults.time /= 1.5;
@@ -1693,8 +1713,10 @@
                 showNotification(`⭐ Stellar Collapse! +${formatNumber(gain)} Dark Matter`);
             }
             if (type === 'quantum') {
-                if (s.darkMatter < 50000) return showNotification('Need 50K dark matter!');
-                const gain = calcQuantumLeapGain();
+                if (s.darkMatter < 50000 && !s.activeChallenge) return showNotification('Need 50K dark matter!');
+                // Calmed challenge: completing via quantum leap
+                const wasInCalmed = s.activeChallenge === 'calmed';
+                const gain = wasInCalmed ? 0 : calcQuantumLeapGain();
                 s.quantumLeaps += gain;
                 s.totalQuantumLeaps += gain;
                 s.cosmicEnergy = 1; s.energyGeneration = 0; s.universeAge = 0; s.darkMatter = 0;
@@ -1706,7 +1728,20 @@
                 updateMilestones();
                 const sfx = document.getElementById('quantumSFX');
                 if (sfx) { sfx.currentTime = 0; sfx.play().catch(() => {}); }
-                showNotification(`🔮 Quantum Leap! +${formatNumber(gain, true)} QL`);
+                if (wasInCalmed) {
+                    s.activeChallenge = null;
+                    s.completedChallenges.calmed = true;
+                    const music = document.getElementById('challengeMusic');
+                    music.pause();
+                    music.currentTime = 0;
+                    if (gameState.upgrades.awakening) {
+                        document.getElementById('bgMusic').play().catch(() => {});
+                    }
+                    showNotification('🏆 Calmed Challenge COMPLETED! Reward unlocked.');
+                    renderChallenges();
+                } else {
+                    showNotification(`🔮 Quantum Leap! +${formatNumber(gain, true)} QL`);
+                }
             }
             updateDisplay();
             renderAllUpgrades();
@@ -1787,7 +1822,7 @@
             document.getElementById('dustAmount').textContent = formatNumber(s.dust);
             document.getElementById('sparklesAmount').textContent = formatNumber(s.sparkles);
             document.getElementById('dustCollections').textContent = s.dustCollections;
-            const sparkleMulti = s.totalSparklesConverted >= 1 ? s.totalSparklesConverted / 100 + 1 : 1;
+            const sparkleMulti = s.totalSparklesConverted >= 1 ? Math.pow(s.totalSparklesConverted / 100 + 1, 0.85) : 1;
             const sparkleMultiEl = document.getElementById('sparkleMultiValue');
             if (sparkleMultiEl) sparkleMultiEl.textContent = 'x' + formatNumber(sparkleMulti);
             const convertToDustBtn = document.getElementById('convertToDust');
@@ -1805,13 +1840,14 @@
                 stellarBtn.classList.toggle('affordable', canStellar);
                 stellarText.textContent = canStellar ? `Stellar Collapse (${formatNumber(calcDarkMatterGain())} DM)` : 'Need 500K Energy';
             }
-            if (s.darkMatter >= 100 || s.upgrades.unlockQuantumForever) {
+            if (s.darkMatter >= 100 || s.upgrades.unlockQuantumForever || s.activeChallenge === 'calmed') {
                 quantumBtn.style.display = 'flex';
                 document.querySelector('[data-tab="quantum"]').style.display = 'block';
-                const canQuantum = s.darkMatter >= 50000;
+                const inCalmed = s.activeChallenge === 'calmed';
+                const canQuantum = inCalmed || s.darkMatter >= 50000;
                 quantumBtn.disabled = !canQuantum;
                 quantumBtn.classList.toggle('affordable', canQuantum);
-                quantumText.textContent = canQuantum ? `Quantum Leap (${formatNumber(calcQuantumLeapGain(), true)} QL)` : 'Need 50K DM';
+                quantumText.textContent = inCalmed ? 'Quantum Leap (Complete Challenge)' : (canQuantum ? `Quantum Leap (${formatNumber(calcQuantumLeapGain(), true)} QL)` : 'Need 50K DM');
             }
         }
         function renderUpgrades(containerId, upgrades) {
@@ -2150,7 +2186,7 @@
                 const amount = Math.floor(gameState.sparkles);
                 gameState.sparkles -= amount;
                 gameState.totalSparklesConverted += amount;
-                const multi = gameState.totalSparklesConverted / 100 + 1;
+                const multi = Math.pow(gameState.totalSparklesConverted / 100 + 1, 0.85);
                 showNotification(`🔥 Converted ${amount} Sparkles to Multi! (x${formatNumber(multi)} energy)`);
                 updateDisplay();
             };
