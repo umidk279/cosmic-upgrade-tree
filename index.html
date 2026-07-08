@@ -1149,7 +1149,8 @@
             ['scaleReduce', 'Scale Reduce', '📉⚖️', 2e23, 'Reduces milestone scaling by x3', null, {persistent:true}],
             ['boost', 'boost', '🚀', 1e23, 'x3 dark matter', 3, {boostsDM:true}],
             ['ifYouEverNeedIt', 'if you ever need it', '🆘⚡', 7e24, 'x3 cosmic energy', 3],
-            ['awesomeDarkMatter', 'AWESOME!', '🔥🌑', 1e25, 'Dark matter ^1.025', null, {powerBoostDM:1.025}]
+            ['awesomeDarkMatter', 'AWESOME!', '🔥🌑', 1e25, 'Dark matter ^1.025', null, {powerBoostDM:1.025}],
+            ['better', 'better', '⬆️', 5e29, 'x6 cosmic energy', 6]
         ];
         const quantumRaw = [
             ['unlockPower', 'Unlock Power', '⚡', 1, 'Unlock powerful multi-level upgrades', null],
@@ -1423,8 +1424,11 @@
                 icon: '🌀',
                 req: () => {
                     const s = gameState;
-                    const cosmicAll = cosmicUpgrades.every(u => (s.upgrades[u.id] || 0) > 0);
-                    const dmAll = darkMatterUpgrades.every(u => (s.upgrades[u.id] || 0) > 0);
+                    // Only require upgrades up to and including 'challenging' (cosmic) and 'awesomeDarkMatter' (dark matter)
+                    const cosmicEnd = cosmicUpgrades.findIndex(u => u.id === 'challenging');
+                    const dmEnd = darkMatterUpgrades.findIndex(u => u.id === 'awesomeDarkMatter');
+                    const cosmicAll = cosmicUpgrades.slice(0, cosmicEnd + 1).every(u => (s.upgrades[u.id] || 0) > 0);
+                    const dmAll = darkMatterUpgrades.slice(0, dmEnd + 1).every(u => (s.upgrades[u.id] || 0) > 0);
                     return cosmicAll && dmAll;
                 },
                 rewardText: '^0.75 power upgrade prices after calculation, Time Based power upgrade effect ^1.5'
