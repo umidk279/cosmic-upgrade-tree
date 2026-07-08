@@ -1665,9 +1665,10 @@
             }
             if (s.universeAge >= 1000) mults.time /= Math.pow(Math.pow(s.universeAge, 0.21), 0.95) + 1;
             if (s.universeAge >= 1200) mults.time /= 1.5;
-            // Calmed challenge debuff: cosmic energy ^0.3 (applied LAST so nothing overrides it)
+            // Calmed challenge debuff: cosmic energy ^0.3 and dark matter gain /100k (applied LAST so nothing overrides it)
             if (s.activeChallenge === 'calmed') {
                 mults.energy = Math.pow(mults.energy, 0.3);
+                mults.darkMatter /= 100000;
             }
             return mults;
         }
@@ -1716,7 +1717,8 @@
                 showNotification(`⭐ Stellar Collapse! +${formatNumber(gain)} Dark Matter`);
             }
             if (type === 'quantum') {
-                if (s.darkMatter < 50000 && !s.activeChallenge) return showNotification('Need 50K dark matter!');
+                // Entry reset bypasses the 50K requirement; player-initiated quantum leap requires it
+                if (s.darkMatter < 50000 && !s.enteringChallenge) return showNotification('Need 50K dark matter!');
                 // Calmed challenge: completing via quantum leap (but not during entry)
                 const wasInCalmed = s.activeChallenge === 'calmed' && !s.enteringChallenge;
                 const gain = (wasInCalmed || s.enteringChallenge) ? 0 : calcQuantumLeapGain();
@@ -1843,14 +1845,13 @@
                 stellarBtn.classList.toggle('affordable', canStellar);
                 stellarText.textContent = canStellar ? `Stellar Collapse (${formatNumber(calcDarkMatterGain())} DM)` : 'Need 500K Energy';
             }
-            if (s.darkMatter >= 100 || s.upgrades.unlockQuantumForever || s.activeChallenge === 'calmed') {
+            if (s.darkMatter >= 100 || s.upgrades.unlockQuantumForever) {
                 quantumBtn.style.display = 'flex';
                 document.querySelector('[data-tab="quantum"]').style.display = 'block';
-                const inCalmed = s.activeChallenge === 'calmed';
-                const canQuantum = inCalmed || s.darkMatter >= 50000;
+                const canQuantum = s.darkMatter >= 50000;
                 quantumBtn.disabled = !canQuantum;
                 quantumBtn.classList.toggle('affordable', canQuantum);
-                quantumText.textContent = inCalmed ? 'Quantum Leap (Complete Challenge)' : (canQuantum ? `Quantum Leap (${formatNumber(calcQuantumLeapGain(), true)} QL)` : 'Need 50K DM');
+                quantumText.textContent = canQuantum ? `Quantum Leap (${formatNumber(calcQuantumLeapGain(), true)} QL)` : 'Need 50K DM';
             }
         }
         function renderUpgrades(containerId, upgrades) {
