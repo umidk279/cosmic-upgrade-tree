@@ -1205,7 +1205,10 @@
                 base: 100, priceScale: 50, priceExponent: 1.1, maxLevel: 999,
                 boostText: lvl => {
                     const sec = (Date.now() - gameState.lastResetTime) / 1000;
-                    const boost = Math.pow(sec, 0.12) + (0.1 + lvl / 20);
+                    let boost = Math.pow(sec, 0.25) + (0.1 + lvl / 10);
+                    if (gameState.completedChallenges.chaotic) {
+                        boost = Math.pow(boost, 1.5);
+                    }
                     return `x${formatNumber(boost)} energy (current)`;
                 }
             },
@@ -1429,7 +1432,7 @@
             {
                 id: 'calmed',
                 name: 'Calmed',
-                desc: 'Cosmic energy is heavily weakened (^0.3). Perform a Quantum Leap reset to complete the challenge.',
+                desc: 'Cosmic energy is heavily weakened (^0.3) and dark matter gain is divided by 8000. Perform a Quantum Leap reset to complete the challenge.',
                 icon: '🌊',
                 req: () => false, // completed when player performs quantum leap while in challenge
                 rewardText: 'Weak power upgrade cost ^0.5 after calculating, x2 cosmic energy'
@@ -1665,10 +1668,10 @@
             }
             if (s.universeAge >= 1000) mults.time /= Math.pow(Math.pow(s.universeAge, 0.21), 0.95) + 1;
             if (s.universeAge >= 1200) mults.time /= 1.5;
-            // Calmed challenge debuff: cosmic energy ^0.3 and dark matter gain /100k (applied LAST so nothing overrides it)
+            // Calmed challenge debuff: cosmic energy ^0.3 and dark matter gain /8000 (applied LAST so nothing overrides it)
             if (s.activeChallenge === 'calmed') {
                 mults.energy = Math.pow(mults.energy, 0.3);
-                mults.darkMatter /= 100000;
+                mults.darkMatter /= 8000;
             }
             return mults;
         }
