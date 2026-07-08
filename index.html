@@ -1070,7 +1070,8 @@
             cosmicEnergy: 1, energyGeneration: 0, universeAge: 0, darkMatter: 0, quantumLeaps: 0, totalQuantumLeaps: 0,
             upgrades: {}, milestones: [], dust: 0, sparkles: 0, totalSparklesConverted: 0, lastDustCollection: 0, dustCollections: 0, bestCosmicEnergy: 1,
             bigBangClicks: 0, bigBangLastClick: 0, shown: {}, lastResetTime: Date.now(), notationMode: 'default', lastRespec: 0,
-            activeChallenge: null, completedChallenges: {}, challengesUnlocked: false, soundVolume: 0.4
+            activeChallenge: null, completedChallenges: {}, challengesUnlocked: false, soundVolume: 0.4,
+            enteringChallenge: false
         };
         const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
         const cosmicRaw = [
@@ -1481,8 +1482,10 @@
                 return showNotification('Purchase the "challenging" upgrade first!');
             }
             gameState.activeChallenge = id;
-            // Force quantum leap reset
+            // Force quantum leap reset (mark as entry so it doesn't count as completion)
+            gameState.enteringChallenge = true;
             performReset('quantum');
+            gameState.enteringChallenge = false;
             // Pause background music, play challenge music
             const bgMusic = document.getElementById('bgMusic');
             if (!bgMusic.paused) bgMusic.pause();
@@ -1618,10 +1621,6 @@
                 const ageBoost = Math.pow(s.cosmicEnergy*s.darkMatter*Math.max(s.quantumLeaps,1), 0.001)+1;
                 mults.time *= ageBoost;
             }
-            // Calmed challenge debuff: cosmic energy ^0.3
-            if (s.activeChallenge === 'calmed') {
-                mults.energy = Math.pow(mults.energy, 0.3);
-            }
             // Calmed challenge reward: x2 cosmic energy
             if (s.completedChallenges.calmed) {
                 mults.energy *= 2;
@@ -1666,6 +1665,10 @@
             }
             if (s.universeAge >= 1000) mults.time /= Math.pow(Math.pow(s.universeAge, 0.21), 0.95) + 1;
             if (s.universeAge >= 1200) mults.time /= 1.5;
+            // Calmed challenge debuff: cosmic energy ^0.3 (applied LAST so nothing overrides it)
+            if (s.activeChallenge === 'calmed') {
+                mults.energy = Math.pow(mults.energy, 0.3);
+            }
             return mults;
         }
         function calcDarkMatterGain() {
@@ -1714,9 +1717,9 @@
             }
             if (type === 'quantum') {
                 if (s.darkMatter < 50000 && !s.activeChallenge) return showNotification('Need 50K dark matter!');
-                // Calmed challenge: completing via quantum leap
-                const wasInCalmed = s.activeChallenge === 'calmed';
-                const gain = wasInCalmed ? 0 : calcQuantumLeapGain();
+                // Calmed challenge: completing via quantum leap (but not during entry)
+                const wasInCalmed = s.activeChallenge === 'calmed' && !s.enteringChallenge;
+                const gain = (wasInCalmed || s.enteringChallenge) ? 0 : calcQuantumLeapGain();
                 s.quantumLeaps += gain;
                 s.totalQuantumLeaps += gain;
                 s.cosmicEnergy = 1; s.energyGeneration = 0; s.universeAge = 0; s.darkMatter = 0;
