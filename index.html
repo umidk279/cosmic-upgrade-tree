@@ -1440,6 +1440,14 @@
                 icon: '🌊',
                 req: () => false, // completed when player performs quantum leap while in challenge
                 rewardText: 'Weak power upgrade cost ^0.5 after calculating, x2 cosmic energy'
+            },
+            {
+                id: 'alot',
+                name: 'alot',
+                desc: 'Reach 3e71 cosmic energy. No debuffs, just a race to the target.',
+                icon: '💯',
+                req: () => gameState.cosmicEnergy >= 3e71,
+                rewardText: 'x10 cosmic energy'
             }
         ];
         function isChallengeActive(id) { return gameState.activeChallenge === id; }
@@ -1631,6 +1639,10 @@
             // Calmed challenge reward: x2 cosmic energy
             if (s.completedChallenges.calmed) {
                 mults.energy *= 2;
+            }
+            // alot challenge reward: x10 cosmic energy
+            if (s.completedChallenges.alot) {
+                mults.energy *= 10;
             }
             if (s.upgrades.deserved) mults.energy = Math.pow(mults.energy, 1.03);
             if (s.upgrades.NICE) mults.energy = Math.pow(mults.energy, 1.04);
