@@ -2030,6 +2030,48 @@
                 setTimeout(() => overlay.classList.remove('fading-back'), 1000);
             }, 7000);
         }
+        function refundTheTimeHasCome() {
+            const s = gameState;
+            if (!s.upgrades.theTimeHasCome) {
+                return showNotification('the time has come is not purchased');
+            }
+            // Find the upgrade definition to get its cost
+            const upgrade = allUpgrades.find(u => u.id === 'theTimeHasCome');
+            if (!upgrade) return;
+            // Refund the quantum leaps
+            s.quantumLeaps += upgrade.cost;
+            s.totalQuantumLeaps += upgrade.cost;
+            // Remove the upgrade
+            delete s.upgrades.theTimeHasCome;
+            // Stop Bodyworks music
+            const bodyworks = document.getElementById('bodyworksMusic');
+            if (bodyworks) {
+                bodyworks.pause();
+                bodyworks.currentTime = 0;
+            }
+            // Hide the blackout overlay if it's active
+            const overlay = document.getElementById('timeHasComeOverlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.classList.remove('fading-back');
+            }
+            const textEl = document.getElementById('timeHasComeText');
+            if (textEl) {
+                textEl.classList.remove('visible');
+                textEl.textContent = '';
+            }
+            // Restart normal background music if awakening was purchased
+            if (s.upgrades.awakening) {
+                const bgMusic = document.getElementById('bgMusic');
+                if (bgMusic && bgMusic.paused) {
+                    bgMusic.volume = s.soundVolume;
+                    bgMusic.play().catch(() => {});
+                }
+            }
+            showNotification('Refunded the time has come (test). +250M QL returned.');
+            updateDisplay();
+            renderAllUpgrades();
+        }
         function buyUpgrade(upgrade) {
             const s = gameState;
             const lvl = s.upgrades[upgrade.id] || 0;
@@ -2169,6 +2211,7 @@
                     <div class="upgrade-title">${u.name}${lvl>0?'✓':''}</div>
                     <div class="upgrade-cost">${isMaxed?'OWNED':u.cost===0?'FREE':`${formatNumber(u.cost)} ${u.costType.replace('cosmicEnergy','Energy').replace('darkMatter','DM').replace('quantumLeaps','QL').replace('dust','Dust')}`}</div>
                     <div class="upgrade-description">${u.effect}${boostText}</div>
+                    ${(u.id === 'theTimeHasCome' && lvl > 0) ? `<button class="refund-timehascome-btn" data-refund-id="theTimeHasCome" style="margin-top:12px;padding:8px 16px;background:linear-gradient(135deg,#ff6b9d,#ff4757);color:#fff;border:1px solid #ff6b9d;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:bold;font-size:0.85rem;position:relative;z-index:2;">↩ Refund (Test)</button>` : ''}
                 </div>`;
             }).join('');
         }
@@ -2439,6 +2482,13 @@
             document.querySelectorAll('.upgrades-grid').forEach(grid => {
                 grid.onclick = (e) => {
                     if (handleShowcaseClick(e)) return;
+                    // Refund button (test purpose) for 'the time has come'
+                    const refundBtn = e.target.closest('.refund-timehascome-btn');
+                    if (refundBtn) {
+                        e.stopPropagation();
+                        refundTheTimeHasCome();
+                        return;
+                    }
                     const card = e.target.closest('.upgrade-card');
                     if (!card || card.classList.contains('maxed')) return;
                     const upgrade = allUpgrades.find(u => u.id === card.dataset.id);
