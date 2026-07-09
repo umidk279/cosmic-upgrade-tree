@@ -22,9 +22,105 @@
             overflow-x: hidden;
             min-height: 100vh;
         }
-        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s infinite; }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+        /* ===== Improved Starfield (injected) ===== */
+        .stars {
+            background:
+                radial-gradient(ellipse 60% 40% at 20% 30%, rgba(100, 255, 218, 0.04) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 35% at 80% 70%, rgba(255, 107, 157, 0.035) 0%, transparent 60%),
+                radial-gradient(ellipse 45% 50% at 50% 50%, rgba(79, 211, 167, 0.025) 0%, transparent 70%);
+        }
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.5;
+            pointer-events: none;
+            animation: nebulaDrift 30s ease-in-out infinite;
+        }
+        .nebula.cyan    { background: radial-gradient(circle, rgba(100, 255, 218, 0.12) 0%, transparent 70%); }
+        .nebula.pink    { background: radial-gradient(circle, rgba(255, 107, 157, 0.10) 0%, transparent 70%); }
+        .nebula.gold    { background: radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%); }
+        @keyframes nebulaDrift {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+            33%      { transform: translate(30px, -20px) scale(1.1); opacity: 0.6; }
+            66%      { transform: translate(-25px, 15px) scale(0.95); opacity: 0.5; }
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        /* Depth layers — far stars are tiny & dim, near stars are big & bright */
+        .star.far {
+            animation-duration: 4s;
+        }
+        .star.mid {
+            animation-duration: 3s;
+        }
+        .star.near {
+            animation-duration: 2s;
+        }
+        /* Color variants with matching glow halos */
+        .star.white { background: #ffffff; box-shadow: 0 0 4px #ffffff, 0 0 8px rgba(255,255,255,0.4); }
+        .star.cyan  { background: #64ffda; box-shadow: 0 0 4px #64ffda, 0 0 10px rgba(100,255,218,0.5); }
+        .star.pink  { background: #ff6b9d; box-shadow: 0 0 4px #ff6b9d, 0 0 10px rgba(255,107,157,0.5); }
+        .star.gold  { background: #ffd700; box-shadow: 0 0 4px #ffd700, 0 0 10px rgba(255,215,0,0.4); }
+        /* Near-layer bright stars get a stronger twinkle */
+        .star.near {
+            animation-name: twinkleBright;
+        }
+        /* Shaped stars contain an SVG that fills the div and inherits color */
+        .star.shaped {
+            background: transparent !important;
+            box-shadow: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .star.shaped svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 6px currentColor);
+        }
+        .star.shaped.near svg {
+            filter: drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor) drop-shadow(0 0 12px currentColor);
+        }
+        @keyframes twinkleBright {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50%      { opacity: 1; transform: scale(1.4); }
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50%      { opacity: 1; transform: scale(1.2); }
+        }
+        /* Shooting star — streaks diagonally across the background */
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, #ffffff, #64ffda, transparent);
+            border-radius: 50%;
+            box-shadow: 0 0 6px #ffffff, 0 0 12px #64ffda;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .shooting-star::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 0;
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.6), #ffffff);
+            transform: translateY(-50%);
+        }
+        @keyframes shoot {
+            0%   { opacity: 0; transform: translate(0, 0) rotate(-25deg); }
+            10%  { opacity: 1; }
+            100% { opacity: 0; transform: translate(400px, 200px) rotate(-25deg); }
+        }
+        /* ===== End Improved Starfield ===== */ 50% { opacity: 1; transform: scale(1.2); } }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
         .title {
             text-align: center;
@@ -771,7 +867,91 @@
             .main-stats { flex-direction: column; }
             .upgrades-grid { grid-template-columns: 1fr; }
         }
-    </style>
+    
+        /* ===== SVG Icon System (injected) ===== */
+        .upgrade-icon svg,
+        .showcase-big-emoji svg,
+        .showcase-bg-emoji svg,
+        .tab-emoji svg,
+        .reset-emoji svg,
+        .settings-panel-icon svg,
+        .power-card .upgrade-icon svg {
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+            vertical-align: middle;
+            filter: drop-shadow(0 0 0.12em currentColor);
+        }
+        .upgrade-icon svg {
+            filter: drop-shadow(0 0 0.25em currentColor);
+        }
+        .showcase-big-emoji svg {
+            filter: drop-shadow(0 0 0.3em currentColor);
+        }
+        .showcase-bg-emoji svg {
+            filter: drop-shadow(0 0 0.3em currentColor);
+        }
+        .tab-emoji svg {
+            width: 1em;
+            height: 1em;
+        }
+        .reset-emoji svg {
+            width: 1em;
+            height: 1em;
+        }
+        /* Override text-shadow with filter for SVG-bearing elements */
+        .upgrade-icon, .tab-emoji, .reset-emoji, .showcase-big-emoji, .showcase-bg-emoji {
+            text-shadow: none !important;
+        }
+        /* ===== Galactic Events flying stars (SVG) ===== */
+        .galactic-star {
+            color: #ffd700;
+            text-shadow: none !important;
+        }
+        .galactic-star svg {
+            width: 1em;
+            height: 1em;
+            display: block;
+            filter:
+                drop-shadow(0 0 0.4em #ffd700)
+                drop-shadow(0 0 0.7em #ff6b9d)
+                drop-shadow(0 0 1em #64ffda);
+            animation: galacticTwinkle 1.2s ease-in-out infinite;
+        }
+        @keyframes galacticTwinkle {
+            0%, 100% { filter: drop-shadow(0 0 0.3em #ffd700) drop-shadow(0 0 0.5em #ff6b9d); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 0.6em #ffd700) drop-shadow(0 0 0.9em #ff6b9d) drop-shadow(0 0 1.2em #64ffda); transform: scale(1.15); }
+        }
+        /* ===== Dust field sparkles (SVG) ===== */
+        .dust-sparkle {
+            color: #64ffda;
+            text-shadow: none !important;
+        }
+        .dust-sparkle svg {
+            width: 1em;
+            height: 1em;
+            display: block;
+            filter: drop-shadow(0 0 0.4em currentColor) drop-shadow(0 0 0.8em currentColor);
+            animation: dustTwinkle 2s ease-in-out infinite;
+        }
+        @keyframes dustTwinkle {
+            0%, 100% { transform: rotate(0deg) scale(1); filter: drop-shadow(0 0 0.3em currentColor); }
+            50% { transform: rotate(90deg) scale(1.12); filter: drop-shadow(0 0 0.6em currentColor) drop-shadow(0 0 1em currentColor); }
+        }
+        .dust-sparkle:hover svg {
+            animation-duration: 0.4s;
+            filter: drop-shadow(0 0 0.6em currentColor) drop-shadow(0 0 1.2em currentColor) drop-shadow(0 0 1.8em #ff6b9d);
+        }
+        .dust-sparkle.pop svg {
+            animation: dustPop 0.2s ease forwards;
+        }
+        @keyframes dustPop {
+            0% { transform: scale(1); filter: drop-shadow(0 0 0.4em currentColor); }
+            100% { transform: scale(2.2) rotate(180deg); filter: drop-shadow(0 0 1em currentColor) drop-shadow(0 0 2em #ff6b9d); opacity: 0; }
+        }
+        /* ===== End SVG Icon System ===== */
+
+</style>
   </head>
   <body>
     <div class="stars" id="stars">
@@ -809,41 +989,41 @@
       </div>
       <div class="buttons-row">
         <button class="reset-button" id="stellarCollapse" style="display:none;">
-          <span class="reset-emoji">⭐</span>
+          <span class="reset-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7 7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg></span>
           <span class="reset-text">Stellar Collapse</span>
         </button>
         <button class="reset-button" id="quantumLeap" style="display:none;">
-          <span class="reset-emoji">🔮</span>
+          <span class="reset-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 6-7 14L5 8zM5 8h14M12 2v20"/></svg></span>
           <span class="reset-text">Quantum Leap</span>
         </button>
       </div>
       <div class="tabs">
         <div class="tab active" data-tab="cosmic-research">
-          <span class="tab-emoji">🔬</span>
+          <span class="tab-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h14M8 18l4-10 3 1-3 8zM13 6l3 1-2 5-3-1z"/><circle cx="9" cy="16" r="2"/></svg></span>
           <span class="tab-text">Cosmic Research</span>
         </div>
         <div class="tab" data-tab="dark-matter" style="display:none;">
-          <span class="tab-emoji">🌑</span>
+          <span class="tab-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-12-7 6 6 0 0 0 12 7z"/></svg></span>
           <span class="tab-text">Dark Matter</span>
         </div>
         <div class="tab" data-tab="quantum" style="display:none;">
-          <span class="tab-emoji">🔮</span>
+          <span class="tab-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 6-7 14L5 8zM5 8h14M12 2v20"/></svg></span>
           <span class="tab-text">Quantum Leap</span>
         </div>
         <div class="tab" data-tab="power" style="display:none;">
-          <span class="tab-emoji">⚡</span>
+          <span class="tab-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>
           <span class="tab-text">Power</span>
         </div>
         <div class="tab" data-tab="dust">
-          <span class="tab-emoji">✨</span>
+          <span class="tab-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 5L19 9.5 13.5 11 12 16l-1.5-5L5 9.5 10.5 8z"/><path d="M19 14l.7 2L22 16.7 20 17.4 19.3 19.5 18.6 17.4 16.7 16.7 18.6 16z"/></svg></span>
           <span class="tab-text">Dust</span>
         </div>
         <div class="tab" data-tab="challenges" style="display:none;">
-          <span class="tab-emoji">🏆</span>
+          <span class="tab-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v6a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M9 20h6M10 15v5M14 15v5"/></svg></span>
           <span class="tab-text">Challenges</span>
         </div>
         <div class="tab" data-tab="settings">
-          <span class="tab-emoji">⚙️</span>
+          <span class="tab-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></span>
           <span class="tab-text">Settings</span>
         </div>
       </div>
@@ -977,7 +1157,7 @@
         <div class="settings-grid">
           <div class="settings-panel">
             <div class="settings-panel-header">
-              <span class="settings-panel-icon">🔢</span>
+              <span class="settings-panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M4 8h16M4 16h16"/></svg></span>
               <div>
                 <div class="settings-panel-title">Notation</div>
                 <div class="settings-panel-subtitle">How numbers are displayed</div>
@@ -1019,7 +1199,7 @@
           </div>
           <div class="settings-panel settings-panel-danger">
             <div class="settings-panel-header">
-              <span class="settings-panel-icon">⚠️</span>
+              <span class="settings-panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 21h20zM12 9v6M12 18v.5"/></svg></span>
               <div>
                 <div class="settings-panel-title" style="color:var(--glow-accent);">Data Management</div>
                 <div class="settings-panel-subtitle">Reset your progress</div>
@@ -1075,134 +1255,134 @@
         };
         const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
         const cosmicRaw = [
-            ['awakening', 'Awakening', '💫', 0, 'Begin energy generation', null, {startGeneration:true}],
-            ['stellarFusion', 'Stellar Fusion', '⭐', 10, 'Double energy generation', 2],
-            ['galacticNetwork', 'Galactic Network', '🌌', 25, 'Triple energy flow', 3],
-            ['temporalAcceleration', 'Temporal Acceleration', '⏰', 75, 'Energy boost scales with age', s => s.universeAge/80+1],
-            ['supernovaChain', 'Supernova Chain', '💥', 300, '8x energy boost', 8],
-            ['cosmicResonance', 'Cosmic Resonance', '🎵', 2500, '3.5x energy from cosmic frequencies', 3.5],
-            ['timeDistortionField', 'Time Distortion Field', '🕳️', 12500, 'Temporal boost', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/75,0.84)/1.2+1 : Math.pow(s.universeAge/50,0.95)+1],
-            ['nebulaHarvesting', 'Nebula Harvesting', '☁️', 50000, '3x energy from cosmic nebulae', 3],
-            ['pulsarSync', 'Pulsar Synchronization', '🌟', 150000, '3.5x energy from pulsar emissions', 3.5],
-            ['quasarChanneling', 'Quasar Channeling', '☀️', 3500000, '2.5x energy boost from quasar power', 2.5],
-            ['cosmicMultiplier', 'Cosmic Energy Multiplier', '✖️', 2e7, 'x5 cosmic energy before 250M, then x3', s => s.cosmicEnergy<2.5e8?5:3],
-            ['cosmicEnergyBoost', 'Cosmic Energy Boost', '⚡', 1e8, 'x2.5 cosmic energy', 2.5],
-            ['energyBoostsDarkMatter', 'Energy Boosts Dark Matter', '🌀', 3e8, 'Cosmic energy boosts dark matter', s => Math.pow(s.cosmicEnergy,0.08)/1.3+1, {showBoost:true, boostsDM:true}],
-            ['timeBoostsDarkMatter', 'Time Boosts Dark Matter', '⏳', 6e8, 'Time boosts dark matter', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/500,0.8)+1 : Math.pow(s.universeAge/450,0.9)+1, {showBoost:true, boostsDM:true}],
-            ['energyBooststself', 'Energy Boosts Itself', '♾️', 3.2e9, 'Cosmic energy boosts itself', s => Math.pow(Math.pow(s.cosmicEnergy, s.upgrades.energyBoostBase?0.06:0.04),1.05)+1, {showBoost:true}],
-            ['darkMatterBoost', 'Dark Matter Boost', '🌑⚡', 8e9, 'x2 dark matter', 2, {boostsDM:true}],
-            ['unlockQuantumForever', 'Unlock Quantum Leap Forever', '🔮', 1e10, 'Permanently unlock quantum leap', null],
-            ['cosmicEnergyTriple', 'Cosmic Energy Triple', '⚡³', 15e12, 'x3 cosmic energy boost', 3],
-            ['galacticEvents', 'Galactic Events', '🌠', 1e14, '15% chance/sec for x30 energy', null],
-            ['temporalSupercharge', 'Temporal Supercharge', '⚡⏰', 1e15, 'Time gain boosted', s => Math.pow(s.cosmicEnergy*s.darkMatter*Math.max(s.quantumLeaps,1),0.03)/1.11+1, {showBoost:true}],
-            ['infinityEngine3', 'Infinity Engine.3', '♾️³', 3e16, 'Infinity Engine boost also boosts quantum', s => s.upgrades.infinityEngine ? Math.pow(Math.pow(s.darkMatter,0.04)+1,0.2)*2+1 : 1, {showBoost:true, boostsQL:true}],
-            ['awesomeBoost', 'AWESOME BOOST', '🔥', 5e17, 'Cosmic energy boosts itself again', s => (Math.log10(Math.max(s.cosmicEnergy,1))+1)*(s.upgrades.improvementAgain?Math.log10(Math.max(s.cosmicEnergy,10)):1)+1, {showBoost:true}],
-            ['unoriginalAwesomeBoost', 'Unoriginal Awesome Boost', '🔥💭', 8e19, 'Cosmic energy boost unoriginally', s => {let b=Math.log(Math.max(s.cosmicEnergy,1))/Math.log(100)/5+1; return b*(s.upgrades.boostItElse?Math.pow(b,0.4):1);}, {showBoost:true}],
-            ['quantumEnergy', 'Quantum Energy', '🔮⚡', 5e20, 'x1.5 quantum leap gains', 1.5, {boostsQL:true}],
-            ['priceLeap', 'Price Leap', '💰🚀', 3e23, 'x1.4 energy, DM & quantum', 1.4, {boostsDM:true, boostsQL:true}],
-            ['deserved', 'Deserved', '👑', 1e24, 'Energy multiplier ^1.03', null, {powerBoost:1.03}],
-            ['thatsDefinitelyGood', "That's Definitely Good", '👍', 4e25, 'Cosmic energy ^1.018', s => Math.pow(s.cosmicEnergy,0.018), {showBoost:true}],
-            ['nerfingNerf', 'Nerfing Nerf', '⏰💪', 6e26, 'Age boosts itself', s => Math.pow(s.universeAge,0.08)+1, {showBoost:true, boostsTime:true}],
-            ['reallyFakeUpgrade', 'Really Fake Upgrade', '🔥💭🌑', 7e27, 'Unoriginal Boost also boosts DM', null],
-            ['justGetItAgain', 'Just Get It Again', '💥🌑', 2e31, 'x5 dark matter', 5, {boostsDM:true}],
-            ['allInOne', 'all in one', '🌟🔮⚡', 1e34, 'Ultimate upgrade', null, {isAllInOne:true}],
-            ['energyBoostBase', '+0.02 Energy Boost Base', '♾️⚡', 9e36, 'Energy Boosts Itself: ^0.06 base', null],
-            ['hyperdimensionalCore', 'Hyperdimensional Core', '🌀', 1e40, 'x10 cosmic energy', 10],
-            ['youHaventGotSometimesQuantumLeapUpgradesAnyway', 'you havent got sometimes quantum leap upgrades anyway', '🔮🤷', 2e44, 'x3.5 quantum leaps', 3.5, {boostsQL:true}],
-            ['getItRn', 'get it rn', '⚡🔥', 3e46, 'x4 cosmic energy', 4],
-            ['NICE', 'NICE!', '👌', 1e50, 'Energy ^1.04', null, {powerBoost:1.04}],
-            ['theyAllAreAmazing', 'they all are amazing', '🌟💫', 8e52, 'x2 cosmic energy', 2],
-            ['finallyWorthIt', 'finally worth it', '💯', 1e54, 'x10 cosmic energy', 10],
-            ['notWorthIt', 'not worth it', '🌑💯', 1e57, 'x10 dark matter', 10, {boostsDM:true}],
-            ['challenging', 'challenging', '', 2e65, 'Unlock the Chaotic challenge', null, {unlockChallenges:true}]
+            ['awakening', 'Awakening', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="4"/><path d="M12 7v2M5.5 11l1.5 1.5M18.5 11l-1.5 1.5M2 19h20M8 15H4M20 15h-4"/></svg>', 0, 'Begin energy generation', null, {startGeneration:true}],
+            ['stellarFusion', 'Stellar Fusion', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M10 8L5 13M14 5L9 0" stroke-dasharray="1 2"/></svg>', 10, 'Double energy generation', 2],
+            ['galacticNetwork', 'Galactic Network', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><circle cx="12" cy="12" r="2"/><path d="M7.5 7.5l3 3M16.5 7.5l-3 3M7.5 16.5l3-3M16.5 16.5l-3-3"/></svg>', 25, 'Triple energy flow', 3],
+            ['temporalAcceleration', 'Temporal Acceleration', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5l8 7-8 7zM13 5l7 7-7 7z"/></svg>', 75, 'Energy boost scales with age', s => s.universeAge/80+1],
+            ['supernovaChain', 'Supernova Chain', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.5 5.5l2.5 2.5M16 16l2.5 2.5M18.5 5.5L16 8M8 16l-2.5 2.5"/></svg>', 300, '8x energy boost', 8],
+            ['cosmicResonance', 'Cosmic Resonance', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 17a10 10 0 0 1 0-10M9 14a5 5 0 0 1 0-4M18 17a10 10 0 0 0 0-10M15 14a5 5 0 0 0 0-4"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>', 2500, '3.5x energy from cosmic frequencies', 3.5],
+            ['timeDistortionField', 'Time Distortion Field', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M5 10h14M7 14h10M9 18h6"/></svg>', 12500, 'Temporal boost', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/75,0.84)/1.2+1 : Math.pow(s.universeAge/50,0.95)+1],
+            ['nebulaHarvesting', 'Nebula Harvesting', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18M3 12h14M3 16h18M3 20h10"/></svg>', 50000, '3x energy from cosmic nebulae', 3],
+            ['pulsarSync', 'Pulsar Synchronization', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20v-5M9 20v-9M14 20v-13M19 20V3"/></svg>', 150000, '3.5x energy from pulsar emissions', 3.5],
+            ['quasarChanneling', 'Quasar Channeling', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l6 3-3 6-6-3zM11 10l-7 9M4 19l3 2M8 13l4 2"/></svg>', 3500000, '2.5x energy boost from quasar power', 2.5],
+            ['cosmicMultiplier', 'Cosmic Energy Multiplier', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l14 14M19 5L5 19"/></svg>', 2e7, 'x5 cosmic energy before 250M, then x3', s => s.cosmicEnergy<2.5e8?5:3],
+            ['cosmicEnergyBoost', 'Cosmic Energy Boost', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>', 1e8, 'x2.5 cosmic energy', 2.5],
+            ['energyBoostsDarkMatter', 'Energy Boosts Dark Matter', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>', 3e8, 'Cosmic energy boosts dark matter', s => Math.pow(s.cosmicEnergy,0.08)/1.3+1, {showBoost:true, boostsDM:true}],
+            ['timeBoostsDarkMatter', 'Time Boosts Dark Matter', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12M7 3c0 4 5 7 5 9s-5 5-5 9M17 3c0 4-5 7-5 9s5 5 5 9"/></svg>', 6e8, 'Time boosts dark matter', s => s.cosmicEnergy>=1e10 ? Math.pow(s.universeAge/500,0.8)+1 : Math.pow(s.universeAge/450,0.9)+1, {showBoost:true, boostsDM:true}],
+            ['energyBooststself', 'Energy Boosts Itself', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg>', 3.2e9, 'Cosmic energy boosts itself', s => Math.pow(Math.pow(s.cosmicEnergy, s.upgrades.energyBoostBase?0.06:0.04),1.05)+1, {showBoost:true}],
+            ['darkMatterBoost', 'Dark Matter Boost', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-12-7 6 6 0 0 0 12 7z"/></svg>', 8e9, 'x2 dark matter', 2, {boostsDM:true}],
+            ['unlockQuantumForever', 'Unlock Quantum Leap Forever', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7-2"/></svg>', 1e10, 'Permanently unlock quantum leap', null],
+            ['cosmicEnergyTriple', 'Cosmic Energy Triple', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/></svg>', 15e12, 'x3 cosmic energy boost', 3],
+            ['galacticEvents', 'Galactic Events', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19l8-8M16 8l-3 3M9 15l-3 3M19 5l-4 4M15 9l-2 2"/><circle cx="6" cy="18" r="1.5" fill="currentColor"/></svg>', 1e14, '15% chance/sec for x30 energy', null],
+            ['temporalSupercharge', 'Temporal Supercharge', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="7"/><path d="M12 14l3-3M9 4h6M12 6V3"/></svg>', 1e15, 'Time gain boosted', s => Math.pow(s.cosmicEnergy*s.darkMatter*Math.max(s.quantumLeaps,1),0.03)/1.11+1, {showBoost:true}],
+            ['infinityEngine3', 'Infinity Engine.3', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12c0-2.5 1.8-4.5 3.5-4.5S13 9.5 13 12s1.8 4.5 3.5 4.5S20 14.5 20 12s-1.8-4.5-3.5-4.5S15 9.5 15 12s-1.8 4.5-3.5 4.5S6 14.5 6 12z"/></svg>', 3e16, 'Infinity Engine boost also boosts quantum', s => s.upgrades.infinityEngine ? Math.pow(Math.pow(s.darkMatter,0.04)+1,0.2)*2+1 : 1, {showBoost:true, boostsQL:true}],
+            ['awesomeBoost', 'AWESOME BOOST', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>', 5e17, 'Cosmic energy boosts itself again', s => (Math.log10(Math.max(s.cosmicEnergy,1))+1)*(s.upgrades.improvementAgain?Math.log10(Math.max(s.cosmicEnergy,10)):1)+1, {showBoost:true}],
+            ['unoriginalAwesomeBoost', 'Unoriginal Awesome Boost', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4c4 2 10 2 14 0-2 3-3 5-3 9s1 7 3 7M5 4c2 3 3 5 3 9s-1 7-3 7"/></svg>', 8e19, 'Cosmic energy boost unoriginally', s => {let b=Math.log(Math.max(s.cosmicEnergy,1))/Math.log(100)/5+1; return b*(s.upgrades.boostItElse?Math.pow(b,0.4):1);}, {showBoost:true}],
+            ['quantumEnergy', 'Quantum Energy', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h14M8 18l4-10 3 1-3 8zM13 6l3 1-2 5-3-1z"/><circle cx="9" cy="16" r="2"/></svg>', 5e20, 'x1.5 quantum leap gains', 1.5, {boostsQL:true}],
+            ['priceLeap', 'Price Leap', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M2 7l5 2M22 7l-5 2M2 17l5-2M22 17l-5-2M9 12h6"/></svg>', 3e23, 'x1.4 energy, DM & quantum', 1.4, {boostsDM:true, boostsQL:true}],
+            ['deserved', 'Deserved', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l4 5 5-7 5 7 4-5-2 12H5z"/><path d="M5 19h14"/></svg>', 1e24, 'Energy multiplier ^1.03', null, {powerBoost:1.03}],
+            ['thatsDefinitelyGood', "That's Definitely Good", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 22V11l5-7c1.5 0 2.5 1 2.5 3v3H19c1.5 0 2.5 1 2 3l-2 7c-.5 1.5-1.5 2-3 2H7z"/></svg>', 4e25, 'Cosmic energy ^1.018', s => Math.pow(s.cosmicEnergy,0.018), {showBoost:true}],
+            ['nerfingNerf', 'Nerfing Nerf', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M3 7l5 5 4-4 8 8M16 16h3v-3"/></svg>', 6e26, 'Age boosts itself', s => Math.pow(s.universeAge,0.08)+1, {showBoost:true, boostsTime:true}],
+            ['reallyFakeUpgrade', 'Really Fake Upgrade', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8c0-3 3-5 9-5s9 2 9 5-3 5-9 5-9-2-9-5z"/><path d="M6 8h2M16 8h2M9 11c1 1 5 1 6 0"/><circle cx="7" cy="8" r="0.5" fill="currentColor"/><circle cx="17" cy="8" r="0.5" fill="currentColor"/></svg>', 7e27, 'Unoriginal Boost also boosts DM', null],
+            ['justGetItAgain', 'Just Get It Again', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19l-3-5 3-2M4 14l3 5h6l1-2M17 5l3 5-3 2M20 10l-3-5h-6l-1 2"/></svg>', 2e31, 'x5 dark matter', 5, {boostsDM:true}],
+            ['allInOne', 'all in one', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18a9 9 0 0 1 18 0M6 18a6 6 0 0 1 12 0M9 18a3 3 0 0 1 6 0"/></svg>', 1e34, 'Ultimate upgrade', null, {isAllInOne:true}],
+            ['energyBoostBase', '+0.02 Energy Boost Base', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="17" height="8" rx="1"/><path d="M22 11v2M5 10v4M8 10v4M11 10v4"/></svg>', 9e36, 'Energy Boosts Itself: ^0.06 base', null],
+            ['hyperdimensionalCore', 'Hyperdimensional Core', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><ellipse cx="12" cy="12" rx="11" ry="3" transform="rotate(-20 12 12)"/></svg>', 1e40, 'x10 cosmic energy', 10],
+            ['youHaventGotSometimesQuantumLeapUpgradesAnyway', 'you havent got sometimes quantum leap upgrades anyway', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 1 1 4 3c-1 .5-1 1.5-1 2"/><circle cx="12" cy="17" r="0.8" fill="currentColor"/></svg>', 2e44, 'x3.5 quantum leaps', 3.5, {boostsQL:true}],
+            ['getItRn', 'get it rn', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="5" r="2"/><path d="M14 7l-4 4 2 3v6M12 14l5 2M10 11l-4 2"/></svg>', 3e46, 'x4 cosmic energy', 4],
+            ['NICE', 'NICE!', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12V6a2 2 0 0 1 4 0v4l5 1c1 .5 2 1.5 2 3v2c0 3-2 6-6 6H9c-2 0-4-2-4-4v-3c0-2 2-3 4-3z"/></svg>', 1e50, 'Energy ^1.04', null, {powerBoost:1.04}],
+            ['theyAllAreAmazing', 'they all are amazing', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 10l-1.5-2-2 1 1.5 2-2 1 2 1-1.5 2 2-1L8 12l1.5 2 2-1-1.5-2 2-1-2-1 1.5-2-2 1zM16 10l-1.5-2-2 1 1.5 2-2 1 2 1-1.5 2 2-1L16 12l1.5 2 2-1-1.5-2 2-1-2-1 1.5-2-2 1z"/></svg>', 8e52, 'x2 cosmic energy', 2],
+            ['finallyWorthIt', 'finally worth it', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h4v6H3zM9 9h4v6H9zM15 9h4v6h-4z"/><path d="M3 9l2-2M9 9l2-2M15 9l2-2"/></svg>', 1e54, 'x10 cosmic energy', 10],
+            ['notWorthIt', 'not worth it', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5 5l14 14"/></svg>', 1e57, 'x10 dark matter', 10, {boostsDM:true}],
+            ['challenging', 'challenging', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M21 21l-8-8M3 21l8-8M21 3l-8 8"/><path d="M3 3l1 4M3 3l4 1M21 3l-1 4M21 3l-4 1M3 21l1-4M3 21l4-1M21 21l-1-4M21 21l-4-1"/></svg>', 2e65, 'Unlock the Chaotic challenge', null, {unlockChallenges:true}]
         ];
         const darkMatterRaw = [
-            ['darkEnergyInfusion', 'Dark Energy Infusion', '🌑', 3, '1.5x cosmic energy', 1.5],
-            ['recoverBoost', 'Recover Boost', '🔄⚡', 2, 'x1.4 cosmic energy', 1.4],
-            ['timeBooster', 'Time Booster', '⏰', 1.5, 'x2 universe age gain', 2, {boostsTime:true}],
-            ['universalHarmony', 'Universal Harmony', '🔮', 5, '1.3x DM & energy', 1.3, {boostsDM:true}],
-            ['voidManipulation', 'Void Manipulation', '⚫', 12, '2x energy from void', 2],
-            ['cosmicMultiplierDM', 'Cosmic Energy Multiplier', '✖️', 20, 'x4 cosmic energy', 4],
-            ['temporalDilation', 'Temporal Dilation Field', '⏳', 50, '2x energy + 2x age', 2, {boostsTime:true}],
-            ['cosmicStorm', 'Cosmic Storm', '⛈️', 100, '3x energy from storms', 3],
-            ['magnitudeScaling', 'Magnitude Scaling', '📏', 250, 'x1.11 per OOM achieved', s => Math.pow(1.11, Math.floor(Math.log10(Math.max(s.cosmicEnergy,1))))],
-            ['researchSynergy', 'Research Synergy', '🔬', 500, 'x1.08 DM per research', s => Math.pow(1.08, Object.values(s.upgrades).filter(v=>v>0).length), {boostsDM:true, showBoost:true}],
-            ['hyperspeedEvolution', 'Hyperspeed Evolution', '🚀', 3000, '2x energy + 2x age', 2, {boostsTime:true}],
-            ['infinityEngine', 'Infinity Engine', '♾️', 8000, 'DM boosts itself', s => Math.pow(s.darkMatter,0.04)+1, {boostsDM:true, showBoost:true}],
-            ['darkMatterSurge', 'Dark Matter Surge', '🌊', 40000, '2x energy final boost', 2],
-            ['researchSynergy2', 'Research Synergy.2', '🔬⚡', 1e5, 'Research Synergy^0.5 boosts energy', s => s.upgrades.researchSynergy ? Math.pow(Math.pow(1.08,Object.values(s.upgrades).filter(v=>v>0).length),0.5)+1 : 1, {showBoost:true}],
-            ['magnitude2', 'Magnitude.2', '📐', 2e5, 'x1.05 per upgrade owned', s => Math.pow(1.05, Object.values(s.upgrades).reduce((a,b)=>a+b,0)), {showBoost:true}],
-            ['synergisedEnergy', 'Synergised Energy', '🔗', 5e5, 'DM boosts energy', s => Math.pow(s.darkMatter,0.08)*1.2+1, {showBoost:true}],
-            ['improvisation', 'Improvisation', '🎭', 5e6, 'x5 cosmic energy', 5],
-            ['galacticNetworkQ', 'Galactic Network?', '🌌❓', 5e7, 'x3 dark matter', 3, {boostsDM:true}],
-            ['evenMoreNetwork', 'Even More Network', '🌌🌌', 5e8, 'x3 cosmic energy', 3],
-            ['cootl', 'cootl', '🔥', 2e9, 'x3 energy, x1.7 DM, x1.85 quantum', 3, {boostsDM:true, dmMult:1.7, boostsQL:true, qlMult:1.85}],
-            ['deserved2', 'Deserved.2', '👑²', 3e11, 'DM multiplier ^1.02', null, {powerBoostDM:1.02}],
-            ['simple', 'Simple', '⚡', 1e12, 'x2 cosmic energy', 2],
-            ['bruhTooUnoriginal', 'Bruh Too Unoriginal', '🔗🌑', 15e12, 'x5 cosmic energy', 5],
-            ['justGetIt', 'Just Get It', '💥', 69e12, 'x9 cosmic energy', 9],
-            ['alr', 'alr', '👌', 2e15, 'x4 cosmic energy', 4],
-            ['pushingUpToAllInOne', 'pushing up to all in one', '⬆️', 1e16, 'x3 energy before 1e34', s => s.cosmicEnergy<1e34?3:1],
-            ['leapTechnology', 'leap technology', '🚀🔮', 1e17, 'x1.5 quantum leaps', 1.5, {boostsQL:true}],
-            ['cheapScaleButGood', 'cheap scale but good', '💰⚡', 7e17, 'x2.5 cosmic energy', 2.5],
-            ['continue', 'continue', '🔄⚡', 6e20, 'Energy boosts itself again', s => Math.pow(s.cosmicEnergy,0.007)*2+1, {showBoost:true}],
-            ['scaleReduce', 'Scale Reduce', '📉⚖️', 2e23, 'Reduces milestone scaling by x3', null, {persistent:true}],
-            ['boost', 'boost', '🚀', 1e23, 'x3 dark matter', 3, {boostsDM:true}],
-            ['ifYouEverNeedIt', 'if you ever need it', '🆘⚡', 7e24, 'x3 cosmic energy', 3],
-            ['awesomeDarkMatter', 'AWESOME!', '🔥🌑', 1e25, 'Dark matter ^1.025', null, {powerBoostDM:1.025}],
-            ['better', 'better', '⬆️', 5e29, 'x6 cosmic energy', 6]
+            ['darkEnergyInfusion', 'Dark Energy Infusion', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-12-7 6 6 0 0 0 12 7z"/></svg>', 3, '1.5x cosmic energy', 1.5],
+            ['recoverBoost', 'Recover Boost', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19l-3-5 3-2M4 14l3 5h6l1-2M17 5l3 5-3 2M20 10l-3-5h-6l-1 2"/></svg>', 2, 'x1.4 cosmic energy', 1.4],
+            ['timeBooster', 'Time Booster', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>', 1.5, 'x2 universe age gain', 2, {boostsTime:true}],
+            ['universalHarmony', 'Universal Harmony', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a4.5 4.5 0 0 1 0 9 4.5 4.5 0 0 0 0 9 9 9 0 0 1 0-18z"/><circle cx="12" cy="7.5" r="1.2" fill="currentColor"/><circle cx="12" cy="16.5" r="1.2" fill="currentColor" stroke="none"/></svg>', 5, '1.3x DM & energy', 1.3, {boostsDM:true}],
+            ['voidManipulation', 'Void Manipulation', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/></svg>', 12, '2x energy from void', 2],
+            ['cosmicMultiplierDM', 'Cosmic Energy Multiplier', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l14 14M19 5L5 19"/></svg>', 20, 'x4 cosmic energy', 4],
+            ['temporalDilation', 'Temporal Dilation Field', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12M7 3c0 4 5 7 5 9s-5 5-5 9M17 3c0 4-5 7-5 9s5 5 5 9"/></svg>', 50, '2x energy + 2x age', 2, {boostsTime:true}],
+            ['cosmicStorm', 'Cosmic Storm', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 14h14M7 18h10M9 22h6M11 6h2"/><path d="M8 10c-2 0-4-2-4-4s2-4 4-4c1-1 3-1 4 0 1-1 3-1 4 0 2 0 4 2 4 4s-2 4-4 4"/></svg>', 100, '3x energy from storms', 3],
+            ['magnitudeScaling', 'Magnitude Scaling', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2"/></svg>', 250, 'x1.11 per OOM achieved', s => Math.pow(1.11, Math.floor(Math.log10(Math.max(s.cosmicEnergy,1))))],
+            ['researchSynergy', 'Research Synergy', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h14M8 18l4-10 3 1-3 8zM13 6l3 1-2 5-3-1z"/><circle cx="9" cy="16" r="2"/></svg>', 500, 'x1.08 DM per research', s => Math.pow(1.08, Object.values(s.upgrades).filter(v=>v>0).length), {boostsDM:true, showBoost:true}],
+            ['hyperspeedEvolution', 'Hyperspeed Evolution', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15c0-6 3-12 7-12s7 6 7 12M5 15l3 4h8l3-4M9 19v3M15 19v3M10 11h4"/><circle cx="12" cy="9" r="1.5"/></svg>', 3000, '2x energy + 2x age', 2, {boostsTime:true}],
+            ['infinityEngine', 'Infinity Engine', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M9 9v5M15 9v5"/><circle cx="6" cy="6.5" r="0.8" fill="currentColor"/><circle cx="12" cy="6.5" r="0.8" fill="currentColor"/><circle cx="18" cy="6.5" r="0.8" fill="currentColor"/><circle cx="6" cy="11.5" r="0.8" fill="currentColor"/><circle cx="18" cy="11.5" r="0.8" fill="currentColor"/><circle cx="12" cy="16.5" r="0.8" fill="currentColor"/></svg>', 8000, 'DM boosts itself', s => Math.pow(s.darkMatter,0.04)+1, {boostsDM:true, showBoost:true}],
+            ['darkMatterSurge', 'Dark Matter Surge', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></svg>', 40000, '2x energy final boost', 2],
+            ['researchSynergy2', 'Research Synergy.2', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L4 20h16L14 9V3"/><path d="M7 15h10"/></svg>', 1e5, 'Research Synergy^0.5 boosts energy', s => s.upgrades.researchSynergy ? Math.pow(Math.pow(1.08,Object.values(s.upgrades).filter(v=>v>0).length),0.5)+1 : 1, {showBoost:true}],
+            ['magnitude2', 'Magnitude.2', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2"/></svg>', 2e5, 'x1.05 per upgrade owned', s => Math.pow(1.05, Object.values(s.upgrades).reduce((a,b)=>a+b,0)), {showBoost:true}],
+            ['synergisedEnergy', 'Synergised Energy', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5 1l3-3a4 4 0 0 0-5-5M14 10a4 4 0 0 0-5-1l-3 3a4 4 0 0 0 5 5"/></svg>', 5e5, 'DM boosts energy', s => Math.pow(s.darkMatter,0.08)*1.2+1, {showBoost:true}],
+            ['improvisation', 'Improvisation', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="9" r="1.2" fill="currentColor"/><circle cx="15" cy="9" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="15" r="1.2" fill="currentColor"/><circle cx="15" cy="15" r="1.2" fill="currentColor"/></svg>', 5e6, 'x5 cosmic energy', 5],
+            ['galacticNetworkQ', 'Galactic Network?', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><circle cx="12" cy="12" r="2"/><path d="M7.5 7.5l3 3M16.5 7.5l-3 3M7.5 16.5l3-3M16.5 16.5l-3-3"/></svg>', 5e7, 'x3 dark matter', 3, {boostsDM:true}],
+            ['evenMoreNetwork', 'Even More Network', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3v18M5 6c3 3 11 3 14 0M5 18c3-3 11-3 14 0"/></svg>', 5e8, 'x3 cosmic energy', 3],
+            ['cootl', 'cootl', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>', 2e9, 'x3 energy, x1.7 DM, x1.85 quantum', 3, {boostsDM:true, dmMult:1.7, boostsQL:true, qlMult:1.85}],
+            ['deserved2', 'Deserved.2', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l4 5 5-7 5 7 4-5-2 12H5z"/><path d="M5 19h14"/></svg>', 3e11, 'DM multiplier ^1.02', null, {powerBoostDM:1.02}],
+            ['simple', 'Simple', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>', 1e12, 'x2 cosmic energy', 2],
+            ['bruhTooUnoriginal', 'Bruh Too Unoriginal', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8c0-3 3-5 9-5s9 2 9 5-3 5-9 5-9-2-9-5z"/><path d="M6 8h2M16 8h2M9 11c1 1 5 1 6 0"/><circle cx="7" cy="8" r="0.5" fill="currentColor"/><circle cx="17" cy="8" r="0.5" fill="currentColor"/></svg>', 15e12, 'x5 cosmic energy', 5],
+            ['justGetIt', 'Just Get It', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.5 5.5l2.5 2.5M16 16l2.5 2.5M18.5 5.5L16 8M8 16l-2.5 2.5"/></svg>', 69e12, 'x9 cosmic energy', 9],
+            ['alr', 'alr', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12V6a2 2 0 0 1 4 0v4l5 1c1 .5 2 1.5 2 3v2c0 3-2 6-6 6H9c-2 0-4-2-4-4v-3c0-2 2-3 4-3z"/></svg>', 2e15, 'x4 cosmic energy', 4],
+            ['pushingUpToAllInOne', 'pushing up to all in one', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M3 17l5-5 4 4 7-7M16 9h3v3"/></svg>', 1e16, 'x3 energy before 1e34', s => s.cosmicEnergy<1e34?3:1],
+            ['leapTechnology', 'leap technology', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15c0-6 3-12 7-12s7 6 7 12M5 15l3 4h8l3-4M9 19v3M15 19v3M10 11h4"/><circle cx="12" cy="9" r="1.5"/></svg>', 1e17, 'x1.5 quantum leaps', 1.5, {boostsQL:true}],
+            ['cheapScaleButGood', 'cheap scale but good', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M2 7l5 2M22 7l-5 2M2 17l5-2M22 17l-5-2M9 12h6"/></svg>', 7e17, 'x2.5 cosmic energy', 2.5],
+            ['continue', 'continue', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19l-3-5 3-2M4 14l3 5h6l1-2M17 5l3 5-3 2M20 10l-3-5h-6l-1 2"/></svg>', 6e20, 'Energy boosts itself again', s => Math.pow(s.cosmicEnergy,0.007)*2+1, {showBoost:true}],
+            ['scaleReduce', 'Scale Reduce', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2"/></svg>', 2e23, 'Reduces milestone scaling by x3', null, {persistent:true}],
+            ['boost', 'boost', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15c0-6 3-12 7-12s7 6 7 12M5 15l3 4h8l3-4M9 19v3M15 19v3M10 11h4"/><circle cx="12" cy="9" r="1.5"/></svg>', 1e23, 'x3 dark matter', 3, {boostsDM:true}],
+            ['ifYouEverNeedIt', 'if you ever need it', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 21h20zM12 9v6M12 18v.5"/></svg>', 7e24, 'x3 cosmic energy', 3],
+            ['awesomeDarkMatter', 'AWESOME!', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-3 7-7 0-5-5-7-5-12-3 2-5 5-5 9-1-1-2-2-2-4-2 3-2 5-2 7 0 4 3 7 7 7z"/></svg>', 1e25, 'Dark matter ^1.025', null, {powerBoostDM:1.025}],
+            ['better', 'better', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M3 17l5-5 4 4 7-7M16 9h3v3"/></svg>', 5e29, 'x6 cosmic energy', 6]
         ];
         const quantumRaw = [
-            ['unlockPower', 'Unlock Power', '⚡', 1, 'Unlock powerful multi-level upgrades', null],
-            ['quantumBoost2', 'Quantum Boost II', '⚡⚡', 3, 'x1.5 cosmic energy', 1.5],
-            ['darkMatterGen', 'Dark Matter Generation', '🌑⚡', 5, 'Generate 1% DM from reset', null],
-            ['unlockMilestones', 'Unlock Milestones', '🏆', 10, 'Unlock milestone system', null],
-            ['quantumBoost', 'Quantum Boost', '🔮⚡', 20, 'x2 energy & DM', 2, {boostsDM:true}],
-            ['quantumSelfBoost', 'Quantum Self-Enhancement', '🔄', 40, 'QL boost themselves', s => s.quantumLeaps>0 ? Math.pow(s.quantumLeaps,0.1)*1.4+1 : 1, {showBoost:true, boostsQL:true}],
-            ['quantumMechanics', 'Quantum Mechanics', '⚛️', 61, 'x2 DM & energy', 2, {boostsDM:true}],
-            ['universalRecover', 'Universal Recover', '🔄', 100, 'x10 energy till best record', 10, {untilBest:true}],
-            ['energyLeap', 'Energy Leap', '⚡🚀', 210, 'x3 cosmic energy', 3],
-            ['universalBuff', 'Universal Buff', '🌟💪', 400, 'x3 age & x2 energy', 2, {boostsTime:true, timeMult:3}],
-            ['bestRecordResonance', 'Best Record Resonance', '🏆', 500, 'x5 energy after best', 5, {afterBest:true}],
-            ['greatOne', 'Great One', '⭐', 1000, 'x2 energy & DM', 2, {boostsDM:true}],
-            ['thisIsPeak', 'This is Peak', '🔥⭐', 1300, 'Energy boosts itself', s => Math.pow(s.cosmicEnergy,0.02)+1.2, {showBoost:true}],
-            ['ohItWasSlow', 'Oh It Was Slow', '🌑🚀', 2000, '7% DM gen & x2 QL', 2, {boostsQL:true}],
-            ['youNeedTimewall', 'You Need Timewall', '⏰🛡️', 7000, 'x3 DM & energy', 3, {boostsDM:true}],
-            ['actualTimewall', 'actual timewall', '🛡️⏰', 30000, 'x3 DM & energy', 3, {boostsDM:true}],
-            ['wasThatUpgradeTooOp', 'was that upgrade too op?', '🤔💥', 60000, 'x2 energy & x1.5 DM', 2, {boostsDM:true, dmMult:1.5}],
-            ['improvementAgain', 'improvement again', '🔥⚡', 150000, 'Awesome Boost multiplied', null],
-            ['improvableBoost', 'Improvable Boost', '📈', 400000, 'x3 energy + 2% per upgrade', s => 3 + Object.values(s.upgrades).reduce((a,b)=>a+b,0)*0.02, {showBoost:true}],
-            ['dontGotAlotQuantumLeaps', 'dont got alot quantum leaps upgrade?', '🤷‍♂️⚡', 2e6, 'x2 energy & DM', 2, {boostsDM:true}],
-            ['boostItElse', 'boost it else', '🚀📈', 2.5e6, '^1.4 unoriginal boost effect', null],
-            ['energyFromSupernova', 'Energy from Supernova', '🌟💥', 3e7, 'x5 cosmic energy', 5],
-            ['amazingQuantumLeaps', 'AMAZING!', '🚀🔮', 1e8, 'Quantum leaps ^1.015', null, {powerBoostQL:1.015}],
-            ['someMulti', 'some multi', '✖️', 1.5e8, 'x3 cosmic energy', 3]
+            ['unlockPower', 'Unlock Power', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7-2"/></svg>', 1, 'Unlock powerful multi-level upgrades', null],
+            ['quantumBoost2', 'Quantum Boost II', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>', 3, 'x1.5 cosmic energy', 1.5],
+            ['darkMatterGen', 'Dark Matter Generation', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>', 5, 'Generate 1% DM from reset', null],
+            ['unlockMilestones', 'Unlock Milestones', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v6a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M9 20h6M10 15v5M14 15v5"/></svg>', 10, 'Unlock milestone system', null],
+            ['quantumBoost', 'Quantum Boost', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 6-7 14L5 8zM5 8h14M12 2v20"/></svg>', 20, 'x2 energy & DM', 2, {boostsDM:true}],
+            ['quantumSelfBoost', 'Quantum Self-Enhancement', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg>', 40, 'QL boost themselves', s => s.quantumLeaps>0 ? Math.pow(s.quantumLeaps,0.1)*1.4+1 : 1, {showBoost:true, boostsQL:true}],
+            ['quantumMechanics', 'Quantum Mechanics', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>', 61, 'x2 DM & energy', 2, {boostsDM:true}],
+            ['universalRecover', 'Universal Recover', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19l-3-5 3-2M4 14l3 5h6l1-2M17 5l3 5-3 2M20 10l-3-5h-6l-1 2"/></svg>', 100, 'x10 energy till best record', 10, {untilBest:true}],
+            ['energyLeap', 'Energy Leap', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>', 210, 'x3 cosmic energy', 3],
+            ['universalBuff', 'Universal Buff', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10c2 0 4 2 4 4l6-1c2 0 4 2 4 4s-2 4-4 4H9c-2 0-4-1-4-3v-8z"/></svg>', 400, 'x3 age & x2 energy', 2, {boostsTime:true, timeMult:3}],
+            ['bestRecordResonance', 'Best Record Resonance', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v6a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M9 20h6M10 15v5M14 15v5"/></svg>', 500, 'x5 energy after best', 5, {afterBest:true}],
+            ['greatOne', 'Great One', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7 7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg>', 1000, 'x2 energy & DM', 2, {boostsDM:true}],
+            ['thisIsPeak', 'This is Peak', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-12 4 6 3-4 5 10z"/><path d="M9 8l1.5 2M13 14l1-1"/></svg>', 1300, 'Energy boosts itself', s => Math.pow(s.cosmicEnergy,0.02)+1.2, {showBoost:true}],
+            ['ohItWasSlow', 'Oh It Was Slow', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h11a5 5 0 0 0 0-10 6 6 0 0 0-11 1M14 9l5-5M19 4v5h-5"/><circle cx="14" cy="9" r="2"/></svg>', 2000, '7% DM gen & x2 QL', 2, {boostsQL:true}],
+            ['youNeedTimewall', 'You Need Timewall', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M9 4v5M15 4v5M6 9v5M12 9v5M18 9v5M9 14v6M15 14v6"/></svg>', 7000, 'x3 DM & energy', 3, {boostsDM:true}],
+            ['actualTimewall', 'actual timewall', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M9 4v5M15 4v5M6 9v5M12 9v5M18 9v5M9 14v6M15 14v6"/></svg>', 30000, 'x3 DM & energy', 3, {boostsDM:true}],
+            ['wasThatUpgradeTooOp', 'was that upgrade too op?', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 1 1 4 3c-1 .5-1 1.5-1 2"/><circle cx="12" cy="17" r="0.8" fill="currentColor"/></svg>', 60000, 'x2 energy & x1.5 DM', 2, {boostsDM:true, dmMult:1.5}],
+            ['improvementAgain', 'improvement again', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-3 7-7 0-5-5-7-5-12-3 2-5 5-5 9-1-1-2-2-2-4-2 3-2 5-2 7 0 4 3 7 7 7z"/></svg>', 150000, 'Awesome Boost multiplied', null],
+            ['improvableBoost', 'Improvable Boost', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M3 17l5-5 4 4 7-7M16 9h3v3"/></svg>', 400000, 'x3 energy + 2% per upgrade', s => 3 + Object.values(s.upgrades).reduce((a,b)=>a+b,0)*0.02, {showBoost:true}],
+            ['dontGotAlotQuantumLeaps', 'dont got alot quantum leaps upgrade?', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 1 1 4 3c-1 .5-1 1.5-1 2"/><circle cx="12" cy="17" r="0.8" fill="currentColor"/></svg>', 2e6, 'x2 energy & DM', 2, {boostsDM:true}],
+            ['boostItElse', 'boost it else', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M3 17l5-5 4 4 7-7M16 9h3v3"/></svg>', 2.5e6, '^1.4 unoriginal boost effect', null],
+            ['energyFromSupernova', 'Energy from Supernova', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.5 5.5l2.5 2.5M16 16l2.5 2.5M18.5 5.5L16 8M8 16l-2.5 2.5"/></svg>', 3e7, 'x5 cosmic energy', 5],
+            ['amazingQuantumLeaps', 'AMAZING!', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 10l-1.5-2-2 1 1.5 2-2 1 2 1-1.5 2 2-1L8 12l1.5 2 2-1-1.5-2 2-1-2-1 1.5-2-2 1zM16 10l-1.5-2-2 1 1.5 2-2 1 2 1-1.5 2 2-1L16 12l1.5 2 2-1-1.5-2 2-1-2-1 1.5-2-2 1z"/></svg>', 1e8, 'Quantum leaps ^1.015', null, {powerBoostQL:1.015}],
+            ['someMulti', 'some multi', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l14 14M19 5L5 19"/></svg>', 1.5e8, 'x3 cosmic energy', 3]
         ];
         const dustRaw = [
-            ['boost1', 'Boost I', '⚡', 8, 'x1.15 cosmic energy', 1.15],
-            ['boost2', 'Boost II', '⚡⚡', 10, 'x1.15 cosmic energy', 1.15],
-            ['boost11', 'Boost I.I', '🌑⚡', 12, 'x1.3 dark matter', 1.3, {boostsDM:true}],
-            ['boost3', 'Boost III', '⚡⚡⚡', 20, 'x1.15 cosmic energy', 1.15],
-            ['greatboost1', 'Great Boost I', '🔮⚡', 25, 'x1.3 quantum leaps', 1.3, {boostsQL:true}],
-            ['improve', 'Improve Collection Time', '⏰', 30, 'Decrease to 50 min', null],
-            ['thisCanBeGenerated', 'this can be generated?', '✨🔧', 50, 'Generate 0.001 dust/sec', null]
+            ['boost1', 'Boost I', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>', 8, 'x1.15 cosmic energy', 1.15],
+            ['boost2', 'Boost II', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>', 10, 'x1.15 cosmic energy', 1.15],
+            ['boost11', 'Boost I.I', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-12-7 6 6 0 0 0 12 7z"/></svg>', 12, 'x1.3 dark matter', 1.3, {boostsDM:true}],
+            ['boost3', 'Boost III', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>', 20, 'x1.15 cosmic energy', 1.15],
+            ['greatboost1', 'Great Boost I', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 6-7 14L5 8zM5 8h14M12 2v20"/></svg>', 25, 'x1.3 quantum leaps', 1.3, {boostsQL:true}],
+            ['improve', 'Improve Collection Time', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>', 30, 'Decrease to 50 min', null],
+            ['thisCanBeGenerated', 'this can be generated?', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>', 50, 'Generate 0.001 dust/sec', null]
         ];
         // Power upgrades - multi-level, cost cosmic energy
         const powerUpgrades = [
             {
-                id: 'weak', name: 'Weak', icon: '💫',
+                id: 'weak', name: 'Weak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c0-3-2-5-5-5M12 8c0-3 2-5 5-5M12 8v14M12 14l-3-2M12 16l3-2"/></svg>',
                 desc: 'x1.025 cosmic energy per level',
                 base: 50, priceScale: 50, priceExponent: 1.2, maxLevel: 999,
                 boostText: lvl => `x${formatNumber(Math.pow(1.025, lvl))} energy`
             },
             {
-                id: 'strong', name: 'Strong', icon: '💪',
+                id: 'strong', name: 'Strong', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10c2 0 4 2 4 4l6-1c2 0 4 2 4 4s-2 4-4 4H9c-2 0-4-1-4-3v-8z"/></svg>',
                 desc: '+0.0025 to exponent of energy, DM & quantum per level',
                 base: 500, priceScale: 1000, priceExponent: 1.5, maxLevel: 999,
                 boostText: lvl => `+${(0.0025*lvl).toFixed(4)} exponent`
             },
             {
-                id: 'timeBased', name: 'Time Based', icon: '⏳',
+                id: 'timeBased', name: 'Time Based', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12M7 3c0 4 5 7 5 9s-5 5-5 9M17 3c0 4-5 7-5 9s5 5 5 9"/></svg>',
                 desc: 'Cosmic energy boost based on time since last reset',
                 base: 100, priceScale: 50, priceExponent: 1.1, maxLevel: 999,
                 boostText: lvl => {
@@ -1215,7 +1395,7 @@
                 }
             },
             {
-                id: 'scaled', name: 'Scaled', icon: '📐',
+                id: 'scaled', name: 'Scaled', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2"/></svg>',
                 desc: 'Growing dark matter boost per level (+0.005/level to boost)',
                 base: 500, priceScale: 150, priceExponent: 1.3, maxLevel: 999,
                 boostText: lvl => {
@@ -1334,7 +1514,7 @@
             const modal = document.getElementById('showcaseModal');
             const content = document.getElementById('showcaseContent');
             const bgEmoji = document.getElementById('showcaseBgEmoji');
-            bgEmoji.textContent = data.icon;
+            bgEmoji.innerHTML = data.icon;
             content.innerHTML = `
                 <div class="showcase-big-emoji">${data.icon}</div>
                 <div class="showcase-title">${data.title}</div>
@@ -1359,10 +1539,10 @@
             clearTimeout(showcaseTimer);
         }
         function spawnGalacticStar() {
-            const stars = ['⭐', '🌟', '✨', '💫', '🌠'];
+            const stars = ['<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1.5 5.5 4 8 9.5 9.5C16 13 13.5 15.5 12 21c-1.5-5.5-4-8-9.5-9.5C8 10 10.5 7.5 12 2z" stroke="none"/></svg>', '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.8 7.2L22 10l-5.5 5L18 22l-6-3.5L6 22l1.5-7L2 10l7.2-0.8z" stroke="none"/></svg>', '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 7h7.5l-6 4.5 2.5 7.5-6.5-4.5-6.5 4.5 2.5-7.5-6-4.5h7.5z" stroke="none"/></svg>', '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2 6 6-2-2 6 6 2-6 2 2 6-6-2-2 6-2-6-6 2 2-6-6-2 6-2-2-6 6 2z" stroke="none"/></svg>', '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21L17 7" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="18" cy="6" r="2.5" stroke="none"/><path d="M16 4l2-2M18 4l2-2M20 6l2 2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>'];
             const star = document.createElement('div');
             star.className = 'galactic-star';
-            star.textContent = stars[Math.floor(Math.random() * stars.length)];
+            star.innerHTML = stars[Math.floor(Math.random() * stars.length)];
             // Random edge: 0=top, 1=right, 2=bottom, 3=left
             const edge = Math.floor(Math.random() * 4);
             let startX, startY, endX, endY;
@@ -1422,7 +1602,7 @@
                 id: 'chaotic',
                 name: 'Chaotic',
                 desc: 'Upgrades in Cosmic Research and Dark Matter move randomly on screen. Buy ALL of them to complete the challenge.',
-                icon: '🌀',
+                icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="9" r="1.2" fill="currentColor"/><circle cx="15" cy="9" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="15" r="1.2" fill="currentColor"/><circle cx="15" cy="15" r="1.2" fill="currentColor"/></svg>',
                 req: () => {
                     const s = gameState;
                     // Only require upgrades up to and including 'challenging' (cosmic) and 'awesomeDarkMatter' (dark matter)
@@ -1438,7 +1618,7 @@
                 id: 'calmed',
                 name: 'Calmed',
                 desc: 'Cosmic energy is heavily weakened (^0.33) and dark matter gain is divided by 5000. Perform a Quantum Leap reset to complete the challenge.',
-                icon: '🌊',
+                icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19M9 3l3 2 3-2M9 21l3-2 3 2M3 9l2 3-2 3M21 9l-2 3 2 3"/></svg>',
                 req: () => false, // completed when player performs quantum leap while in challenge
                 rewardText: 'Weak power upgrade cost ^0.5 after calculating, x2 cosmic energy'
             },
@@ -1446,7 +1626,7 @@
                 id: 'alot',
                 name: 'alot',
                 desc: 'Reach 1e71 cosmic energy. No debuffs, just a race to the target.',
-                icon: '💯',
+                icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
                 req: () => gameState.cosmicEnergy >= 1e71,
                 rewardText: 'x10 cosmic energy'
             }
@@ -2040,16 +2220,75 @@
             }
         }
         function init() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                starsContainer.appendChild(star);
+                        const starsContainer = document.getElementById('stars');
+            // Star shape SVGs (same family as dust field, minus the plus/cross)
+            // Filled so they glow as solid shapes; inherit color via currentColor.
+            const starShapes = [
+                '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3c1 4.5 2.5 6 7 7-4.5 1-6 2.5-7 7-1-4.5-2.5-6-7-7 4.5-1 6-2.5 7-7z"/></svg>',
+                '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3 6 6 4-6 4-3 6-3-6-6-4 6-4z"/></svg>',
+                '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="2.5"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>'
+            ];
+            // Soft nebula clouds (3 colors, drifting slowly)
+            const nebulae = [
+                {cls: 'cyan', size: 300, top: '10%',  left: '5%',   delay: 0},
+                {cls: 'pink', size: 250, top: '60%',  left: '70%',  delay: 5},
+                {cls: 'gold', size: 200, top: '40%',  left: '40%',  delay: 10},
+                {cls: 'cyan', size: 180, top: '75%',  left: '15%',  delay: 7},
+            ];
+            nebulae.forEach(n => {
+                const el = document.createElement('div');
+                el.className = 'nebula ' + n.cls;
+                el.style.width = el.style.height = n.size + 'px';
+                el.style.top = n.top;
+                el.style.left = n.left;
+                el.style.animationDelay = n.delay + 's';
+                starsContainer.appendChild(el);
+            });
+            // Multi-layer parallax starfield
+            // Layer configs: [count, sizeRange, layerClass, colorWeights, shapeChance]
+            //   shapeChance = probability a star gets an SVG shape (only near layer, since
+            //   shapes are invisible at far/mid sizes).
+            const layers = [
+                {count: 80,  sizeMin: 0.5, sizeMax: 1.5, layer: 'far',  colors: ['white','white','white','cyan','pink','gold'], shapeChance: 0},
+                {count: 50,  sizeMin: 1.5, sizeMax: 2.5, layer: 'mid',  colors: ['white','white','cyan','pink','gold'],         shapeChance: 0},
+                {count: 25,  sizeMin: 3,   sizeMax: 6,   layer: 'near', colors: ['white','cyan','pink','gold'],                 shapeChance: 0.6},
+            ];
+            layers.forEach(layer => {
+                for (let i = 0; i < layer.count; i++) {
+                    const color = layer.colors[Math.floor(Math.random() * layer.colors.length)];
+                    const size = Math.random() * (layer.sizeMax - layer.sizeMin) + layer.sizeMin;
+                    const useShape = layer.shapeChance > 0 && Math.random() < layer.shapeChance;
+                    const star = document.createElement('div');
+                    star.className = 'star ' + layer.layer + ' ' + color + (useShape ? ' shaped' : '');
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.animationDelay = Math.random() * 4 + 's';
+                    star.style.animationDuration = (Math.random() * 2 + (layer.layer === 'far' ? 3 : layer.layer === 'mid' ? 2.5 : 2)) + 's';
+                    if (useShape) {
+                        // SVG shape — sized in px so the shape detail is visible
+                        star.innerHTML = starShapes[Math.floor(Math.random() * starShapes.length)];
+                        star.style.width = star.style.height = size + 'px';
+                    } else {
+                        // Plain circle dot
+                        star.style.width = star.style.height = size + 'px';
+                    }
+                    starsContainer.appendChild(star);
+                }
+            });
+            // Periodic shooting stars
+            function spawnShootingStar() {
+                const ss = document.createElement('div');
+                ss.className = 'shooting-star';
+                ss.style.left = Math.random() * 60 + '%';
+                ss.style.top = Math.random() * 40 + '%';
+                const duration = 1.2 + Math.random() * 0.8;
+                ss.style.animation = `shoot ${duration}s ease-out forwards`;
+                starsContainer.appendChild(ss);
+                setTimeout(() => ss.remove(), duration * 1000 + 100);
+                // Schedule the next one (random 4-12 seconds)
+                setTimeout(spawnShootingStar, 4000 + Math.random() * 8000);
             }
+            setTimeout(spawnShootingStar, 3000 + Math.random() * 4000);
             document.getElementById('dataReset').onclick = () => performReset('bigBang');
             document.getElementById('stellarCollapse').onclick = () => performReset('stellar');
             document.getElementById('notationDefault').onclick = () => setNotation('default');
@@ -2122,10 +2361,10 @@
             // Dust field minigame
             const dustField = document.getElementById('dustField');
             const dustFieldUpgrades = [
-                {id: 'df_value', name: 'Value', icon: '💎', desc: '+0.2 sparkles per click per level', base: 72, priceScale: 1.6, maxLevel: 10},
-                {id: 'df_spawn', name: 'Spawn Time', icon: '⏱️', desc: '/1.12 spawn time per level', base: 48, priceScale: 1.5, maxLevel: 8},
-                {id: 'df_greater', name: 'Greater', icon: '📐', desc: 'x1.2 sparkle size & +1 max sparkles per level', base: 84, priceScale: 1.8, maxLevel: 7},
-                {id: 'df_dustValueTime', name: 'Dust Value & Time', icon: '🕐💎', desc: '+2 dust on collect & /1.08 collect time per level', base: 120, priceScale: 1.4, maxLevel: 10}
+                {id: 'df_value', name: 'Value', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l3 6-9 12L3 9zM3 9h18M9 3l-3 6 6 12 6-12-3-6"/></svg>', desc: '+0.2 sparkles per click per level', base: 72, priceScale: 1.6, maxLevel: 10},
+                {id: 'df_spawn', name: 'Spawn Time', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 13l4-4M9 3h6"/></svg>', desc: '/1.12 spawn time per level', base: 48, priceScale: 1.5, maxLevel: 8},
+                {id: 'df_greater', name: 'Greater', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M3 17l5-5 4 4 7-7M16 9h3v3"/></svg>', desc: 'x1.2 sparkle size & +1 max sparkles per level', base: 84, priceScale: 1.8, maxLevel: 7},
+                {id: 'df_dustValueTime', name: 'Dust Value & Time', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>', desc: '+2 dust on collect & /1.08 collect time per level', base: 120, priceScale: 1.4, maxLevel: 10}
             ];
             function getDFLevel(id) { return gameState.upgrades[id] || 0; }
             function getDFCost(dfu) { return Math.floor(dfu.base * Math.pow(dfu.priceScale, getDFLevel(dfu.id))); }
@@ -2173,12 +2412,13 @@
                 renderDustFieldUpgrades();
                 updateDustFieldText();
             };
+                        const dustSparkleIcons = ['<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 4.5 2.5 6 7 7-4.5 1-6 2.5-7 7-1-4.5-2.5-6-7-7 4.5-1 6-2.5 7-7z" stroke="none"/></svg>', '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 4-6 4-3 6-3-6-6-4 6-4z" stroke="none"/></svg>', '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z" stroke="none"/></svg>', '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5" stroke="none"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>'];
             function spawnSparkle() {
                 const sparkles = dustField.querySelectorAll('.dust-sparkle:not(.pop)');
                 if (sparkles.length >= getDustMaxSparkles()) return;
                 const el = document.createElement('div');
                 el.className = 'dust-sparkle';
-                el.textContent = '✨';
+                el.innerHTML = dustSparkleIcons[Math.floor(Math.random() * dustSparkleIcons.length)];
                 const size = getDustSparkleSize();
                 el.style.fontSize = (1.5 * size) + 'rem';
                 el.style.left = (5 + Math.random() * 85) + '%';
