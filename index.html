@@ -2007,28 +2007,28 @@
                 bodyworks.volume = gameState.soundVolume;
                 bodyworks.play().catch(() => {});
             }
-            // Phase 1: 'the time has come' (1s → 3s)
+            // Phase 1: 'The time has come.' (1s → 3s)
             setTimeout(() => {
-                textEl.textContent = 'the time has come';
+                textEl.textContent = 'The time has come.';
                 textEl.classList.add('visible');
             }, 1000);
             setTimeout(() => {
                 textEl.classList.remove('visible');
             }, 3000);
-            // Phase 2: 'new feature is coming soon so' (3s → 6s)
+            // Phase 2: 'New feature is coming soon so.' (5s → 8s) — 2s gap after phase 1
             setTimeout(() => {
-                textEl.textContent = 'new feature is coming soon so';
+                textEl.textContent = 'New feature is coming soon so.';
                 textEl.classList.add('visible');
-            }, 3000);
+            }, 5000);
             setTimeout(() => {
                 textEl.classList.remove('visible');
-            }, 6000);
-            // Fade back to normal at 7s
+            }, 8000);
+            // Fade back to normal at 9s
             setTimeout(() => {
                 overlay.classList.remove('active');
                 overlay.classList.add('fading-back');
                 setTimeout(() => overlay.classList.remove('fading-back'), 1000);
-            }, 7000);
+            }, 9000);
         }
         function refundTheTimeHasCome() {
             const s = gameState;
