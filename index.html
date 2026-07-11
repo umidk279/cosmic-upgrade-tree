@@ -1208,10 +1208,10 @@
               <div class="volume-control">
                 <div class="settings-panel-title" style="font-size:1rem;margin-bottom:5px;">🔊 Sound Volume</div>
                 <div class="settings-panel-subtitle">Controls all audio (music, SFX, challenge music)</div>
-                <input type="range" min="0" max="100" value="40" class="volume-slider" id="soundVolumeSlider" />
+                <input type="range" min="0" max="100" value="20" class="volume-slider" id="soundVolumeSlider" />
                 <div class="volume-display">
                     <span>Mute</span>
-                    <span class="volume-value" id="soundVolumeValue">40%</span>
+                    <span class="volume-value" id="soundVolumeValue">20%</span>
                     <span>Max</span>
                 </div>
               </div>
@@ -1289,8 +1289,8 @@
             cosmicEnergy: 1, energyGeneration: 0, universeAge: 0, darkMatter: 0, quantumLeaps: 0, totalQuantumLeaps: 0,
             upgrades: {}, milestones: [], dust: 0, sparkles: 0, totalSparklesConverted: 0, lastDustCollection: 0, dustCollections: 0, bestCosmicEnergy: 1,
             bigBangClicks: 0, bigBangLastClick: 0, shown: {}, lastResetTime: Date.now(), notationMode: 'default', lastRespec: 0,
-            activeChallenge: null, completedChallenges: {}, challengesUnlocked: false, soundVolume: 0.4,
-            enteringChallenge: false
+            activeChallenge: null, completedChallenges: {}, challengesUnlocked: false, soundVolume: 0.2,
+            enteringChallenge: false, selectedFont: "'Courier New', monospace"
         };
         const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
         const cosmicRaw = [
@@ -1722,9 +1722,11 @@
             gameState.enteringChallenge = true;
             performReset('quantum');
             gameState.enteringChallenge = false;
-            // Pause background music, play challenge music
+            // Pause background music AND Bodyworks, play challenge music
             const bgMusic = document.getElementById('bgMusic');
             if (!bgMusic.paused) bgMusic.pause();
+            const bodyworksEnter = document.getElementById('bodyworksMusic');
+            if (bodyworksEnter && !bodyworksEnter.paused) bodyworksEnter.pause();
             document.getElementById('challengeMusic').play().catch(() => {});
             showNotification('🏆 Challenge entered! Good luck.');
             renderChallenges();
@@ -1740,8 +1742,11 @@
             const music = document.getElementById('challengeMusic');
             music.pause();
             music.currentTime = 0;
-            // Resume background music if awakening was purchased
-            if (gameState.upgrades.awakening) {
+            // Resume music: Bodyworks if 'the time has come' is owned, else bgMusic
+            if (gameState.upgrades.theTimeHasCome) {
+                const bw = document.getElementById('bodyworksMusic');
+                if (bw) { bw.volume = gameState.soundVolume; bw.play().catch(() => {}); }
+            } else if (gameState.upgrades.awakening) {
                 document.getElementById('bgMusic').play().catch(() => {});
             }
             if (completed) {
@@ -2030,48 +2035,6 @@
                 setTimeout(() => overlay.classList.remove('fading-back'), 1000);
             }, 9000);
         }
-        function refundTheTimeHasCome() {
-            const s = gameState;
-            if (!s.upgrades.theTimeHasCome) {
-                return showNotification('the time has come is not purchased');
-            }
-            // Find the upgrade definition to get its cost
-            const upgrade = allUpgrades.find(u => u.id === 'theTimeHasCome');
-            if (!upgrade) return;
-            // Refund the quantum leaps
-            s.quantumLeaps += upgrade.cost;
-            s.totalQuantumLeaps += upgrade.cost;
-            // Remove the upgrade
-            delete s.upgrades.theTimeHasCome;
-            // Stop Bodyworks music
-            const bodyworks = document.getElementById('bodyworksMusic');
-            if (bodyworks) {
-                bodyworks.pause();
-                bodyworks.currentTime = 0;
-            }
-            // Hide the blackout overlay if it's active
-            const overlay = document.getElementById('timeHasComeOverlay');
-            if (overlay) {
-                overlay.classList.remove('active');
-                overlay.classList.remove('fading-back');
-            }
-            const textEl = document.getElementById('timeHasComeText');
-            if (textEl) {
-                textEl.classList.remove('visible');
-                textEl.textContent = '';
-            }
-            // Restart normal background music if awakening was purchased
-            if (s.upgrades.awakening) {
-                const bgMusic = document.getElementById('bgMusic');
-                if (bgMusic && bgMusic.paused) {
-                    bgMusic.volume = s.soundVolume;
-                    bgMusic.play().catch(() => {});
-                }
-            }
-            showNotification('Refunded the time has come (test). +250M QL returned.');
-            updateDisplay();
-            renderAllUpgrades();
-        }
         function buyUpgrade(upgrade) {
             const s = gameState;
             const lvl = s.upgrades[upgrade.id] || 0;
@@ -2211,7 +2174,6 @@
                     <div class="upgrade-title">${u.name}${lvl>0?'✓':''}</div>
                     <div class="upgrade-cost">${isMaxed?'OWNED':u.cost===0?'FREE':`${formatNumber(u.cost)} ${u.costType.replace('cosmicEnergy','Energy').replace('darkMatter','DM').replace('quantumLeaps','QL').replace('dust','Dust')}`}</div>
                     <div class="upgrade-description">${u.effect}${boostText}</div>
-                    ${(u.id === 'theTimeHasCome' && lvl > 0) ? `<button class="refund-timehascome-btn" data-refund-id="theTimeHasCome" style="margin-top:12px;padding:8px 16px;background:linear-gradient(135deg,#ff6b9d,#ff4757);color:#fff;border:1px solid #ff6b9d;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:bold;font-size:0.85rem;position:relative;z-index:2;">↩ Refund (Test)</button>` : ''}
                 </div>`;
             }).join('');
         }
@@ -2318,6 +2280,8 @@
             if (cosmicMusicStarted) return;
             // Don't start background music while in a challenge
             if (gameState.activeChallenge) return;
+            // Don't start bgMusic if 'the time has come' is owned (Bodyworks replaces it)
+            if (gameState.upgrades.theTimeHasCome) return;
             const bgMusic = document.getElementById('bgMusic');
             bgMusic.volume = gameState.soundVolume;
             const tryPlay = () => {
@@ -2334,14 +2298,29 @@
             }
         }
         function checkMusicState() {
-            // If Bodyworks is unlocked, ensure it keeps playing
+            // If Bodyworks ('the time has come') is unlocked, manage it + challenge music
             if (gameState.upgrades.theTimeHasCome) {
                 const bodyworks = document.getElementById('bodyworksMusic');
-                if (bodyworks && bodyworks.paused) {
-                    bodyworks.volume = gameState.soundVolume;
-                    bodyworks.play().catch(() => {});
+                const challengeMusic = document.getElementById('challengeMusic');
+                const bgMusicC = document.getElementById('bgMusic');
+                // Always ensure bgMusic is NOT playing when Bodyworks is active
+                if (bgMusicC && !bgMusicC.paused) bgMusicC.pause();
+                if (gameState.activeChallenge) {
+                    // In a challenge: pause Bodyworks, ensure challenge music plays
+                    if (bodyworks && !bodyworks.paused) bodyworks.pause();
+                    if (challengeMusic && challengeMusic.paused) {
+                        challengeMusic.volume = gameState.soundVolume;
+                        challengeMusic.play().catch(() => {});
+                    }
+                } else {
+                    // Not in a challenge: pause challenge music, ensure Bodyworks plays
+                    if (challengeMusic && !challengeMusic.paused) challengeMusic.pause();
+                    if (bodyworks && bodyworks.paused) {
+                        bodyworks.volume = gameState.soundVolume;
+                        bodyworks.play().catch(() => {});
+                    }
                 }
-                return; // Don't run normal music checks while Bodyworks is active
+                return; // Don't run normal bgMusic checks while Bodyworks is active
             }
 
             // If in a challenge, ensure challenge music is playing (browser may have paused it)
@@ -2482,13 +2461,6 @@
             document.querySelectorAll('.upgrades-grid').forEach(grid => {
                 grid.onclick = (e) => {
                     if (handleShowcaseClick(e)) return;
-                    // Refund button (test purpose) for 'the time has come'
-                    const refundBtn = e.target.closest('.refund-timehascome-btn');
-                    if (refundBtn) {
-                        e.stopPropagation();
-                        refundTheTimeHasCome();
-                        return;
-                    }
                     const card = e.target.closest('.upgrade-card');
                     if (!card || card.classList.contains('maxed')) return;
                     const upgrade = allUpgrades.find(u => u.id === card.dataset.id);
@@ -2663,7 +2635,12 @@
                     if (gameState.activeChallenge) {
                         const bgMusic = document.getElementById('bgMusic');
                         if (!bgMusic.paused) bgMusic.pause();
+                        const bwInit = document.getElementById('bodyworksMusic');
+                        if (bwInit && !bwInit.paused) bwInit.pause();
                         document.getElementById('challengeMusic').play().catch(() => {});
+                    } else if (gameState.upgrades.theTimeHasCome) {
+                        const bwInit = document.getElementById('bodyworksMusic');
+                        if (bwInit) { bwInit.volume = gameState.soundVolume; bwInit.play().catch(() => {}); }
                     } else {
                         startCosmicMusic();
                     }
