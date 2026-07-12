@@ -1370,7 +1370,8 @@
             ['boost', 'boost', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15c0-6 3-12 7-12s7 6 7 12M5 15l3 4h8l3-4M9 19v3M15 19v3M10 11h4"/><circle cx="12" cy="9" r="1.5"/></svg>', 1e23, 'x3 dark matter', 3, {boostsDM:true}],
             ['ifYouEverNeedIt', 'if you ever need it', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 21h20zM12 9v6M12 18v.5"/></svg>', 7e24, 'x3 cosmic energy', 3],
             ['awesomeDarkMatter', 'AWESOME!', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-3 7-7 0-5-5-7-5-12-3 2-5 5-5 9-1-1-2-2-2-4-2 3-2 5-2 7 0 4 3 7 7 7z"/></svg>', 1e25, 'Dark matter ^1.025', null, {powerBoostDM:1.025}],
-            ['better', 'better', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M3 17l5-5 4 4 7-7M16 9h3v3"/></svg>', 5e29, 'x6 cosmic energy', 6]
+            ['better', 'better', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M3 17l5-5 4 4 7-7M16 9h3v3"/></svg>', 5e29, 'x6 cosmic energy', 6],
+            ['forgotten', 'forgotten', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/></svg>', 3e37, 'Galactic Events: 30% chance for x60 cosmic energy, 1 star/sec', null, {forgottenGalactic:true}],
         ];
         const quantumRaw = [
             ['unlockPower', 'Unlock Power', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7-2"/></svg>', 1, 'Unlock powerful multi-level upgrades', null],
@@ -1716,6 +1717,7 @@
                     <div style="margin-top:10px;color:var(--glow-secondary);font-size:0.85rem;font-weight:bold;">
                         🎁 Reward: ${ch.rewardText}
                     </div>
+                    ${ch.id === 'degrading' && isChallengeCompleted('degrading') ? (() => { const bc = Object.values(gameState.upgrades).filter(v => v > 0).length; const ae = (0.0003 * bc).toFixed(4); return `<div style="margin-top:8px;color:#ff6b9d;font-size:0.8rem;font-weight:bold;">Current bonus: +${ae} energy exponent (${bc} upgrades)</div>`; })() : ''}
                     ${actionBtn}
                 </div>`;
             }).join('');
@@ -2113,9 +2115,22 @@
             s.bestCosmicEnergy = Math.max(s.bestCosmicEnergy, s.cosmicEnergy);
             const mults = calculateMultipliers();
             let eventBoost = 1;
-            if (s.upgrades.galacticEvents && Math.random() < 0.15) {
-                eventBoost = 30;
-                spawnGalacticStar();
+            if (s.upgrades.galacticEvents) {
+                // 'forgotten' upgrade: 30% chance, x60 boost; otherwise 15% chance, x30 boost
+                const geChance = s.upgrades.forgotten ? 0.30 : 0.15;
+                const geBoost = s.upgrades.forgotten ? 60 : 30;
+                if (Math.random() < geChance) {
+                    eventBoost = geBoost;
+                    // 'forgotten' upgrade: limit to 1 star per second
+                    if (s.upgrades.forgotten) {
+                        if (!s._lastForgottenStar || Date.now() - s._lastForgottenStar >= 1000) {
+                            spawnGalacticStar();
+                            s._lastForgottenStar = Date.now();
+                        }
+                    } else {
+                        spawnGalacticStar();
+                    }
+                }
             }
             const energyGain = Math.min(s.energyGeneration * mults.energy * eventBoost / 10, 1e100);
             const ageGain = Math.min(1 * mults.time / 10, 1000);
@@ -2188,12 +2203,6 @@
                 let boostText = '';
                 if (u.showBoost && lvl > 0 && typeof u.mult === 'function') {
                     boostText = ` <span style="color:#4fd3a7">(Current: x${formatNumber(u.mult(s))})</span>`;
-                }
-                // Degrading reward indicator on 'complete it' card: show current +exponent from bought upgrades
-                if (u.id === 'completeIt' && s.completedChallenges && s.completedChallenges.degrading) {
-                    const boughtCount = Object.values(s.upgrades).filter(v => v > 0).length;
-                    const addedExp = (0.0003 * boughtCount).toFixed(4);
-                    boostText += ` <span style="color:#ff6b9d">(Degrading reward: +${addedExp} energy exponent from ${boughtCount} upgrades)</span>`;
                 }
                 let chaoticStyle = '';
                 if (isChaotic) {
