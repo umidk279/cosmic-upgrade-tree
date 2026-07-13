@@ -1372,7 +1372,7 @@
             ['awesomeDarkMatter', 'AWESOME!', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-3 7-7 0-5-5-7-5-12-3 2-5 5-5 9-1-1-2-2-2-4-2 3-2 5-2 7 0 4 3 7 7 7z"/></svg>', 1e25, 'Dark matter ^1.025', null, {powerBoostDM:1.025}],
             ['better', 'better', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M3 17l5-5 4 4 7-7M16 9h3v3"/></svg>', 5e29, 'x6 cosmic energy', 6],
             ['forgotten', 'forgotten', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/></svg>', 3e37, 'Galactic Events: 30% chance for x60 cosmic energy, 1 star/sec', null, {forgottenGalactic:true}],
-            ['cheaper', 'cheaper', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M2 7l5 2M22 7l-5 2M2 17l5-2M22 17l-5-2M9 12h6"/></svg>', 1e40, 'Power upgrade prices rooted by super-log of cosmic energy (base 10)', null, {cheaperPower:true, showBoost:true, mult: s => { if (!s.upgrades.cheaper || s.cosmicEnergy <= 1) return 1; const b = 10; let x = s.cosmicEnergy; let root = 0; while (x > 1) { root = 1 + root; x = Math.log(x) / Math.log(b); } root = root + (x > 0 ? x - 1 : 0); return Math.max(1, root); }}],
+            ['cheaper', 'cheaper', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M2 7l5 2M22 7l-5 2M2 17l5-2M22 17l-5-2M9 12h6"/></svg>', 3e38, 'Power upgrade prices rooted by (log10(cosmic energy)/10)^0.5+1', null, {cheaperPower:true, showBoost:true, mult: s => { if (!s.upgrades.cheaper || s.cosmicEnergy <= 1) return 1; return Math.pow(Math.log10(s.cosmicEnergy) / 10, 0.5) + 1; }}],
         ];
         const quantumRaw = [
             ['unlockPower', 'Unlock Power', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7-2"/></svg>', 1, 'Unlock powerful multi-level upgrades', null],
@@ -1479,15 +1479,20 @@
             if (gameState.completedChallenges.calmed && pu.id === 'weak') {
                 cost = Math.pow(cost, 0.5);
             }
-            // 'cheaper' upgrade: root cost by super-log of COSMIC ENERGY (base 10)
-            // cost = cost ^ (1 / slog_b(cosmicEnergy, 10))
-            // Applied AFTER all other calculations, using cosmic energy as the slog input.
+            // 'cheaper' upgrade: root cost by (log10(cosmicEnergy)/10)^0.5 + 1
+            // cost = cost ^ (1 / ((log10(cosmicEnergy)/10)^0.5 + 1))
+            // Applied AFTER all other calculations, using cosmic energy as input.
             if (gameState.upgrades.cheaper && cost > 1 && gameState.cosmicEnergy > 1) {
-                const sl = slog_b(gameState.cosmicEnergy, 10);
-                if (sl > 1) {
-                    cost = Math.pow(cost, 1 / sl);
+                const rootExp = Math.pow(Math.log10(gameState.cosmicEnergy) / 10, 0.5) + 1;
+                if (rootExp > 1) {
+                    cost = Math.pow(cost, 1 / rootExp);
                 }
             }
+            // Cap at Number.MAX_VALUE so overflow (Infinity) displays properly
+            // instead of formatNumber returning '0.00' for !isFinite values.
+            // Also clamp to minimum 1 so prices never show as 0.00 from tiny roots.
+            if (!isFinite(cost) || cost > Number.MAX_VALUE) cost = Number.MAX_VALUE;
+            cost = Math.max(1, cost);
             return cost;
         }
         function getPowerLevel(id) {
