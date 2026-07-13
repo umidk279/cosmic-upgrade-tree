@@ -1470,30 +1470,37 @@
         }
         function getPowerCost(pu, lvl) {
             if (lvl === 0) return pu.base;
-            let cost = pu.base * Math.pow(pu.priceScale, (Math.pow(pu.priceExponent, lvl) - 1) / (pu.priceExponent - 1));
-            // Chaotic challenge reward: ^0.75 power upgrade prices
+            // Compute in LOG10 space to avoid overflow at high levels.
+            // log10(cost) = log10(base) + exponent * log10(priceScale)
+            // where exponent = (priceExponent^lvl - 1) / (priceExponent - 1)
+            const exponent = (Math.pow(pu.priceExponent, lvl) - 1) / (pu.priceExponent - 1);
+            let logCost = Math.log10(pu.base) + exponent * Math.log10(pu.priceScale);
+            // Chaotic challenge reward: ^0.75 power upgrade prices → logCost *= 0.75
             if (gameState.completedChallenges.chaotic) {
-                cost = Math.pow(cost, 0.75);
+                logCost *= 0.75;
             }
-            // Calmed challenge reward: weak power upgrade cost ^0.5
+            // Calmed challenge reward: weak power upgrade cost ^0.5 → logCost *= 0.5
             if (gameState.completedChallenges.calmed && pu.id === 'weak') {
-                cost = Math.pow(cost, 0.5);
+                logCost *= 0.5;
             }
             // 'cheaper' upgrade: root cost by (log10(cosmicEnergy)/10)^0.5 + 1
-            // cost = cost ^ (1 / ((log10(cosmicEnergy)/10)^0.5 + 1))
-            // Applied AFTER all other calculations, using cosmic energy as input.
-            if (gameState.upgrades.cheaper && cost > 1 && gameState.cosmicEnergy > 1) {
+            // cost = cost ^ (1 / rootExp)  →  logCost /= rootExp
+            if (gameState.upgrades.cheaper && logCost > 0 && gameState.cosmicEnergy > 1) {
                 const rootExp = Math.pow(Math.log10(gameState.cosmicEnergy) / 10, 0.5) + 1;
                 if (rootExp > 1) {
-                    cost = Math.pow(cost, 1 / rootExp);
+                    logCost /= rootExp;
                 }
             }
-            // Cap at Number.MAX_VALUE so overflow (Infinity) displays properly
-            // instead of formatNumber returning '0.00' for !isFinite values.
-            // Also clamp to minimum 1 so prices never show as 0.00 from tiny roots.
-            if (!isFinite(cost) || cost > Number.MAX_VALUE) cost = Number.MAX_VALUE;
-            cost = Math.max(1, cost);
-            return cost;
+            // Convert back: cost = 10^logCost, capped to avoid Infinity
+            let cost;
+            if (logCost > 308) {
+                cost = Number.MAX_VALUE;
+            } else if (logCost < 0) {
+                cost = 1;
+            } else {
+                cost = Math.pow(10, logCost);
+            }
+            return Math.max(1, cost);
         }
         function getPowerLevel(id) {
             return gameState.upgrades['power_' + id] || 0;
