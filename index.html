@@ -2454,6 +2454,7 @@
         }
         function gameLoop() {
             const s = gameState;
+            const tps = gameState.tickrate || 1;
             s.bestCosmicEnergy = Math.max(s.bestCosmicEnergy, s.cosmicEnergy);
             const mults = calculateMultipliers();
             let eventBoost = 1;
@@ -2475,7 +2476,6 @@
                 }
             }
             // Divide gains by tickrate so per-second rate stays constant
-            const tps = gameState.tickrate || 1;
             const energyGain = Math.min(s.energyGeneration * mults.energy * eventBoost / tps, 1e100);
             const ageGain = Math.min(1 * mults.time / tps, 1000);
             s.cosmicEnergy = Math.min(s.cosmicEnergy + energyGain, 1e308);
