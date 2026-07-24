@@ -10,9 +10,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&family=Audiowide&family=Rajdhani:wght@400;600&family=Exo+2:wght@400;700&family=Bebas+Neue&family=VT323&family=Major+Mono+Display&family=Space+Mono&display=swap');
 
       :root {
-            --glow-primary: var(--glow-primary);
-            --glow-secondary: var(--glow-secondary);
-            --glow-accent: var(--glow-accent);
+            --glow-primary: #64ffda;
+            --glow-secondary: #4fd3a7;
+            --glow-accent: #ff6b9d;
+            --glow-primary-rgb: 100, 255, 218;
+            --glow-secondary-rgb: 79, 211, 167;
+            --glow-accent-rgb: 255, 107, 157;
             --bg-dark: #0a0a2e;
             --bg-darker: #000000;
         }
@@ -978,29 +981,6 @@
         }
         .time-has-come-text.visible { opacity: 1; }
         /* ===== User-customizable color variables (defaults match original) ===== */
-        :root {
-            --glow-primary: var(--glow-primary);
-            --glow-secondary: var(--glow-secondary);
-            --glow-accent: var(--glow-accent);
-            --glow-primary-rgb: 100, 255, 218;
-            --glow-secondary-rgb: 79, 211, 167;
-            --glow-accent-rgb: 255, 107, 157;
-            --user-upgrade-name: #ffffff;
-            --user-text-body: #b0bec5;
-        }
-        /* Apply user colors to key elements (using real --glow-* vars) */
-        .title { color: var(--glow-primary); text-shadow: 0 0 20px var(--glow-primary); }
-        .upgrade-title { color: var(--user-upgrade-name); }
-        .upgrade-cost { color: var(--glow-accent); }
-        .upgrade-description { color: var(--user-text-body); }
-        .stat-label { color: var(--user-text-body); }
-        .tab-text { color: var(--glow-primary); }
-        .tab.active { background: linear-gradient(135deg, var(--glow-primary) 0%, var(--glow-secondary) 100%); }
-        .main-button { border: 1px solid var(--glow-primary); color: var(--glow-primary); }
-        .upgrade-card { border-color: var(--glow-primary); }
-        .upgrade-card.affordable { border-color: var(--glow-secondary); }
-        .stat-value { color: var(--glow-primary); }
-        .dust-sparkle { color: var(--glow-primary); }
         /* Size inline SVG icons in buttons, labels, and panel headers */
         .main-button svg, .respec-button svg, .settings-panel-title svg {
             width: 1em; height: 1em;
@@ -1018,26 +998,12 @@
             vertical-align: middle;
             margin-right: 2px;
         }
-        /* Color swatch buttons */
-        .color-swatch:hover { transform: scale(1.15); border-color: #fff !important; }
-        .color-swatch.active { border-color: #fff; box-shadow: 0 0 10px currentColor; }
         /* Dust/Sparkles buttons use CSS variables for background */
         #convertToDust { /* uses default .main-button background */ }
         #convertToMulti { /* uses default .main-button background */ }
         #collectDustBtn { background: linear-gradient(135deg, var(--glow-primary), var(--glow-secondary)) !important; color: #000 !important; }
         /* Fix button text contrast: colored buttons get dark text */
-        /* Collect Dust / convert buttons use default .main-button styling now */
-        /* Text outline classes — JS assigns the right one based on text luminance */
-        .text-outline-dark {
-            text-shadow: -1px -1px 0 rgba(0,0,0,0.9), 1px -1px 0 rgba(0,0,0,0.9),
-                         -1px 1px 0 rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.9),
-                         0 0 4px rgba(0,0,0,0.7) !important;
-        }
-        .text-outline-light {
-            text-shadow: -1px -1px 0 rgba(255,255,255,0.7), 1px -1px 0 rgba(255,255,255,0.7),
-                         -1px 1px 0 rgba(255,255,255,0.7), 1px 1px 0 rgba(255,255,255,0.7),
-                         0 0 4px rgba(255,255,255,0.5) !important;
-        }
+
 </style>
   </head>
   <body>
@@ -1305,29 +1271,7 @@
               <input type="range" min="1" max="25" value="10" class="volume-slider" id="tickrateSlider" />
               <div class="volume-display"><span>1x</span><span class="volume-value" id="tickrateValue">10</span><span>25x</span></div>
               <hr style="border:none;border-top:1px solid rgba(var(--glow-primary-rgb), 0.2);margin:20px 0;">
-              <div class="settings-panel-title" style="font-size:1rem;margin-bottom:10px;">Main color</div>
-              <div class="settings-panel-subtitle" style="margin-bottom:8px;">Sets ALL blue elements &amp; SVG icons to one color</div>
-              <div class="color-swatches" id="colorSwatches" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px;">
-                <button class="color-swatch" data-color="#64ffda" style="background:#64ffda;width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;" title="Cyan (default)"></button>
-                <button class="color-swatch" data-color="#ff4444" style="background:#ff4444;width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;" title="Red"></button>
-                <button class="color-swatch" data-color="#ff8800" style="background:#ff8800;width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;" title="Orange"></button>
-                <button class="color-swatch" data-color="#ffdd00" style="background:#ffdd00;width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;" title="Yellow"></button>
-                <button class="color-swatch" data-color="#44ff44" style="background:#44ff44;width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;" title="Green"></button>
-                <button class="color-swatch" data-color="#00aaff" style="background:#00aaff;width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;" title="Blue"></button>
-                <button class="color-swatch" data-color="#aa44ff" style="background:#aa44ff;width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;" title="Purple"></button>
-                <button class="color-swatch" data-color="#ff44aa" style="background:#ff44aa;width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;" title="Pink"></button>
-                <button class="color-swatch" data-color="#ffffff" style="background:#ffffff;width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;" title="White"></button>
-              </div>
-              <hr style="border:none;border-top:1px solid rgba(var(--glow-primary-rgb), 0.2);margin:15px 0;">
-              <div class="settings-panel-title" style="font-size:1rem;margin-bottom:10px;">Advanced colors</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <div><label style="color:var(--user-text-body);font-size:0.85rem;">Primary glow</label><br><input type="color" value="#64ffda" id="colorPrimary" style="width:100%;height:36px;border:1px solid rgba(var(--glow-primary-rgb), 0.3);border-radius:6px;background:transparent;cursor:pointer;"></div>
-                <div><label style="color:var(--user-text-body);font-size:0.85rem;">Secondary glow</label><br><input type="color" value="#4fd3a7" id="colorSecondary" style="width:100%;height:36px;border:1px solid rgba(var(--glow-primary-rgb), 0.3);border-radius:6px;background:transparent;cursor:pointer;"></div>
-                <div><label style="color:var(--user-text-body);font-size:0.85rem;">Accent (costs)</label><br><input type="color" value="#ff6b9d" id="colorAccent" style="width:100%;height:36px;border:1px solid rgba(var(--glow-primary-rgb), 0.3);border-radius:6px;background:transparent;cursor:pointer;"></div>
-                <div><label style="color:var(--user-text-body);font-size:0.85rem;">Upgrade names</label><br><input type="color" value="#ffffff" id="colorName" style="width:100%;height:36px;border:1px solid rgba(var(--glow-primary-rgb), 0.3);border-radius:6px;background:transparent;cursor:pointer;"></div>
-                <div><label style="color:var(--user-text-body);font-size:0.85rem;">Body text</label><br><input type="color" value="#b0bec5" id="colorBody" style="width:100%;height:36px;border:1px solid rgba(var(--glow-primary-rgb), 0.3);border-radius:6px;background:transparent;cursor:pointer;"></div>
-              </div>
-              <button class="main-button" id="resetColors" style="margin-top:15px;width:100%;font-size:0.85rem;">Reset Colors</button>
+              <!-- Colors section removed -->
               <hr style="border:none;border-top:1px solid rgba(var(--glow-primary-rgb), 0.2);margin:15px 0;">
               <div class="settings-panel-title" style="font-size:1rem;margin-bottom:5px;">Font</div>
               <div class="settings-panel-subtitle" style="margin-bottom:8px;">Choose the game typeface</div>
@@ -1423,7 +1367,7 @@
             upgrades: {}, milestones: [], dust: 0, sparkles: 0, totalSparklesConverted: 0, lastDustCollection: 0, dustCollections: 0, bestCosmicEnergy: 1,
             bigBangClicks: 0, bigBangLastClick: 0, shown: {}, lastResetTime: Date.now(), notationMode: 'default', lastRespec: 0,
             activeChallenge: null, completedChallenges: {}, challengesUnlocked: false, soundVolume: 0.2,
-            enteringChallenge: false, selectedFont: "'Courier New', monospace", starCount: 155, tickrate: 10, colors: {primary:'#64ffda', secondary:'#4fd3a7', accent:'#ff6b9d', name:'#ffffff', body:'#b0bec5'}
+            enteringChallenge: false, selectedFont: "'Courier New', monospace", starCount: 155, tickrate: 10
         };
         const upgradeDefaults = {cosmic: {costType: 'cosmicEnergy', maxLevel: 1}, dm: {costType: 'darkMatter', maxLevel: 1}, q: {costType: 'quantumLeaps', maxLevel: 1}, dust: {costType: 'dust', maxLevel: 1}};
         const cosmicRaw = [
@@ -2219,93 +2163,6 @@
             gameLoopInterval = setInterval(gameLoop, Math.round(1000 / tps));
             saveGame();
         }
-        function setMainColor(color) {
-            // Set ALL colors to the chosen color so everything becomes it
-            if (!gameState.colors) gameState.colors = {};
-            gameState.colors.primary = color;
-            gameState.colors.secondary = color;
-            gameState.colors.accent = color;
-            gameState.colors.name = color;
-            applyColors();
-            // Update individual color picker inputs
-            ['colorPrimary','colorSecondary','colorAccent','colorName'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = color;
-            });
-            // Highlight the active swatch
-            document.querySelectorAll('.color-swatch').forEach(s => {
-                s.classList.toggle('active', s.dataset.color.toLowerCase() === color.toLowerCase());
-            });
-            saveGame();
-        }
-        function getLuminance(hex) {
-            // Returns 0-255 luminance. Higher = lighter color.
-            const r = parseInt(hex.slice(1,3), 16);
-            const g = parseInt(hex.slice(3,5), 16);
-            const b = parseInt(hex.slice(5,7), 16);
-            return 0.299 * r + 0.587 * g + 0.114 * b;
-        }
-        function applyTextOutlines() {
-            // For each text element, check its computed color luminance and
-            // assign the opposite outline (light text → dark outline, dark text → light outline)
-            const selectors = '.upgrade-title, .upgrade-cost, .upgrade-description, ' +
-                '.stat-label, .stat-value, .stat-sub, .tab-text, .subtitle, ' +
-                '.settings-panel-title, .settings-panel-subtitle, .power-level, .milestone-title';
-            document.querySelectorAll(selectors).forEach(el => {
-                const color = window.getComputedStyle(el).color;
-                // Parse rgb(r, g, b)
-                const m = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-                if (!m) return;
-                const lum = 0.299 * +m[1] + 0.587 * +m[2] + 0.114 * +m[3];
-                el.classList.remove('text-outline-dark', 'text-outline-light');
-                el.classList.add(lum > 128 ? 'text-outline-dark' : 'text-outline-light');
-            });
-            // Also outline the notification
-            const notif = document.getElementById('notification');
-            if (notif) {
-                const color = window.getComputedStyle(notif).color;
-                const m = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-                if (m) {
-                    const lum = 0.299 * +m[1] + 0.587 * +m[2] + 0.114 * +m[3];
-                    notif.classList.remove('text-outline-dark', 'text-outline-light');
-                    notif.classList.add(lum > 128 ? 'text-outline-dark' : 'text-outline-light');
-                }
-            }
-        }
-        function hexToRgb(hex) {
-            const r = parseInt(hex.slice(1,3), 16);
-            const g = parseInt(hex.slice(3,5), 16);
-            const b = parseInt(hex.slice(5,7), 16);
-            return r + ', ' + g + ', ' + b;
-        }
-        function applyColors() {
-            const c = gameState.colors || {primary:'#64ffda', secondary:'#4fd3a7', accent:'#ff6b9d', name:'#ffffff', body:'#b0bec5'};
-            // Set the REAL --glow-* variables (affects ALL CSS that uses them)
-            document.documentElement.style.setProperty('--glow-primary', c.primary);
-            document.documentElement.style.setProperty('--glow-secondary', c.secondary);
-            document.documentElement.style.setProperty('--glow-accent', c.accent);
-            // Set -rgb variants for rgba() usage
-            document.documentElement.style.setProperty('--glow-primary-rgb', hexToRgb(c.primary));
-            document.documentElement.style.setProperty('--glow-secondary-rgb', hexToRgb(c.secondary));
-            document.documentElement.style.setProperty('--glow-accent-rgb', hexToRgb(c.accent));
-            // Set text colors
-            document.documentElement.style.setProperty('--user-upgrade-name', c.name);
-            document.documentElement.style.setProperty('--user-text-body', c.body);
-            // Update color picker inputs to reflect saved values
-            const ids = {colorPrimary:'primary', colorSecondary:'secondary', colorAccent:'accent', colorName:'name', colorBody:'body'};
-            Object.entries(ids).forEach(([id, key]) => {
-                const el = document.getElementById(id);
-                if (el) el.value = c[key];
-            });
-            // Apply text outlines based on new colors
-            applyTextOutlines();
-        }
-        function setColor(key, value) {
-            if (!gameState.colors) gameState.colors = {};
-            gameState.colors[key] = value;
-            applyColors();
-            saveGame();
-        }
         function setStarCount(count) {
             gameState.starCount = count;
             const el = document.getElementById('starsValue');
@@ -2655,9 +2512,7 @@
                 // Apply saved sound volume
                 applySoundVolume();
                 setSoundVolume(Math.round(gameState.soundVolume * 100));
-                // Apply saved colors + star count
-                applyColors();
-                if (offlineTime > 5000) {
+                    if (offlineTime > 5000) {
                     const offlineSec = offlineTime / 1000;
                     const mults = calculateMultipliers();
                     // Offline progress at 2x normal rate (was /5 at 10x/sec, now ×2 at 1x/sec)
@@ -2751,7 +2606,6 @@
         function init() {
                         const starsContainer = document.getElementById('stars');
             // Apply saved colors + regenerate stars with saved count
-            applyColors();
             if (gameState.starCount !== undefined) {
                 const ssSlider = document.getElementById('starsSlider');
                 if (ssSlider) ssSlider.value = gameState.starCount;
@@ -2848,29 +2702,8 @@
             }
             // Apply saved font
             if (gameState.selectedFont) document.body.style.fontFamily = gameState.selectedFont;
-            // Wire up main color swatches
-            document.querySelectorAll('.color-swatch').forEach(swatch => {
-                swatch.onclick = () => setMainColor(swatch.dataset.color);
-            });
-            // Highlight active swatch on load
-            if (gameState.colors && gameState.colors.primary) {
-                document.querySelectorAll('.color-swatch').forEach(s => {
-                    s.classList.toggle('active', s.dataset.color.toLowerCase() === gameState.colors.primary.toLowerCase());
-                });
-            }
-            // Wire up color pickers
-            [['colorPrimary','primary'],['colorSecondary','secondary'],['colorAccent','accent'],['colorName','name'],['colorBody','body']].forEach(([id, key]) => {
-                const el = document.getElementById(id);
-                if (el) el.oninput = (e) => setColor(key, e.target.value);
-            });
-            // Wire up reset colors button
-            const resetColorsBtn = document.getElementById('resetColors');
-            if (resetColorsBtn) resetColorsBtn.onclick = () => {
-                gameState.colors = {primary:'#64ffda', secondary:'#4fd3a7', accent:'#ff6b9d', name:'#ffffff', body:'#b0bec5'};
-                applyColors();
-                saveGame();
-                showNotification('Colors reset to default');
-            };
+
+
             document.getElementById('quantumLeap').onclick = () => performReset('quantum');
             document.getElementById('collectDustBtn').onclick = collectDust;
             function showDustFieldShowcase(dfu) {
@@ -3123,7 +2956,6 @@
             // Start game loop with saved tickrate (default 1x/sec)
             setTickrate(gameState.tickrate || 1);
             setInterval(renderActiveTab, 5000);
-            setInterval(applyTextOutlines, 1000);
             setInterval(saveGame, 10000);
             setInterval(checkMusicState, 5000);
             setInterval(updateRespecButton, 1000);
